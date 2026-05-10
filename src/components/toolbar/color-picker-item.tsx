@@ -5,7 +5,7 @@ import { oklchToHex } from "@/utils/colors";
 import { useEffect, useState } from "react";
 import ColorPicker from "../color-picker/color-picker";
 import { useThemeColors } from "../theme/theme-context";
-import { Button } from "../ui/button";
+import type { PaletteKey } from "../theme/theme-context";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,24 +15,33 @@ import {
 interface ColorPickerItemProps {
   name: string;
   color: string;
+  shortcut?: string;
 }
 
-export function ColorPickerItem({ color, name }: ColorPickerItemProps) {
-  const { colors, updateColor, isReady } = useThemeColors();
+export function ColorPickerItem({ color, name, shortcut }: ColorPickerItemProps) {
+  const { colors, updateColor, isReady, activeToken, setActiveToken } = useThemeColors();
   const [isOpen, setIsOpen] = useState(false);
   const [pickerKey, setPickerKey] = useState(0);
-  const [currentColor, setCurrentColor] = useState<string | undefined>(
-    undefined,
-  );
+  const [currentColor, setCurrentColor] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    if (isReady && colors[color] !== currentColor) {
-      setCurrentColor(colors[color]);
+    if (isReady && colors[color as PaletteKey] !== currentColor) {
+      setCurrentColor(colors[color as PaletteKey]);
     }
   }, [isReady, colors, color, currentColor]);
 
+  // Open when this token is activated via keyboard
+  useEffect(() => {
+    if (activeToken === color && !isOpen) {
+      setIsOpen(true);
+      setPickerKey((prev) => prev + 1);
+    } else if (activeToken !== color && isOpen) {
+      setIsOpen(false);
+    }
+  }, [activeToken, color, isOpen]);
+
   const handleColorChange = (newColor: string) => {
-    updateColor(color, newColor);
+    updateColor(color as PaletteKey, newColor);
     setCurrentColor(newColor);
   };
 
@@ -40,35 +49,66 @@ export function ColorPickerItem({ color, name }: ColorPickerItemProps) {
     setIsOpen(open);
     if (open) {
       setPickerKey((prev) => prev + 1);
+      setActiveToken(color as PaletteKey);
+    } else {
+      setActiveToken(null);
     }
   };
+
+  const hexColor = currentColor ? oklchToHex(currentColor) : undefined;
+  const isActive = isOpen;
+
+  // Get contrast partner for WCAG check
+  const contrastPartner =
+    color === "foreground"
+      ? colors["background"]
+      : color === "background"
+      ? colors["foreground"]
+      : color === "primary"
+      ? colors["background"]
+      : undefined;
+
+  const contrastHex = contrastPartner ? oklchToHex(contrastPartner) : undefined;
 
   return (
     <DropdownMenu modal={false} open={isOpen} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
-        <Button
+        <button
           className={cn(
-            "px-4 py-3.5 cursor-pointer h-fit",
-            color === "foreground" ? "text-background" : "text-foreground",
+            "relative flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-150 cursor-pointer outline-none",
+            "hover:bg-muted/60",
+            isActive && "bg-muted ring-1 ring-border",
+            !isReady && "opacity-40 pointer-events-none",
           )}
-          style={{
-            backgroundColor: currentColor,
-            borderColor: !isReady ? "transparent" : undefined,
-          }}
           disabled={!isReady}
+          aria-label={`${name} color picker${shortcut ? ` (${shortcut})` : ""}`}
         >
-          {name}
-        </Button>
+          <div
+            className="w-6 h-6 rounded-full border-2 border-border shadow-sm transition-transform duration-150 hover:scale-110"
+            style={{ backgroundColor: hexColor }}
+          />
+          <span className="text-[10px] font-medium text-muted-foreground leading-none">
+            {name}
+          </span>
+          {shortcut && (
+            <span className="text-[9px] text-muted-foreground/60 leading-none">
+              {shortcut}
+            </span>
+          )}
+        </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        {isReady && currentColor ? (
+      <DropdownMenuContent className="p-0 border-0 bg-transparent shadow-none" sideOffset={8}>
+        {isReady && hexColor ? (
           <ColorPicker
             key={`colorpicker-${color}-${pickerKey}`}
-            initialColor={oklchToHex(currentColor)}
+            initialColor={hexColor}
             onColorChange={handleColorChange}
+            contrastWith={contrastHex}
           />
         ) : (
-          <div className="p-4 text-center">Loading colors...</div>
+          <div className="p-4 text-sm text-center text-muted-foreground bg-card rounded-xl border border-border">
+            Loading…
+          </div>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

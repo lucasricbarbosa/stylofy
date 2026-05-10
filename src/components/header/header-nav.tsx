@@ -1,3 +1,5 @@
+import { templates } from "@/utils/templates";
+import Link from "next/link";
 import { CustomLink } from "../custom-link";
 import {
   NavigationMenu,
@@ -19,11 +21,32 @@ export function HeaderNav() {
               Templates
             </NavigationMenuTrigger>
             <NavigationMenuContent>
-              <NavigationMenuLink>Link</NavigationMenuLink>
+              {templates.map((template) => (
+                <DropdownItem
+                  key={template.url}
+                  name={template.name}
+                  url={template.url}
+                />
+              ))}
             </NavigationMenuContent>
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
     </nav>
+  );
+}
+
+interface DropdownItemProps {
+  url: string;
+  name: string;
+}
+
+function DropdownItem({ url, name }: DropdownItemProps) {
+  return (
+    <NavigationMenuLink asChild>
+      <Link href={url} className="block px-3 py-2 rounded hover:bg-accent">
+        {name}
+      </Link>
+    </NavigationMenuLink>
   );
 }

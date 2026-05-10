@@ -2,38 +2,39 @@ import { Timeline, TimelineStep } from "../ui/timeline";
 
 const steps: TimelineStep[] = [
   {
-    title: "Learn the Fundamentals",
-    content: "Start with two neutral colors for the text and the background.",
+    title: "Pick Your Text & Background",
+    content:
+      "Start with the two neutral colors that define your palette's contrast. These apply to the page background and all body text.",
   },
   {
-    title: "Set Up Your Development Environment",
+    title: "Set Primary & Secondary",
     content:
-      "Choose your primary and secondary colors. Primary is for main CTAs and sections, and Secondary is for less important buttons and info cards.",
+      "Primary drives your main CTAs, links, and highlighted elements. Secondary fills cards, tags, and supporting UI.",
   },
   {
-    title: "Create Your First React App",
+    title: "Add an Accent",
     content:
-      "Accent color is an additional color. It appears in images, highlights, hyperlinks, boxes, cards, etc.",
+      "The accent color appears in badges, icons, hover states, and decorative elements. It gives your palette personality.",
   },
   {
-    title: "Build Real Projects",
+    title: "Export & Ship",
     content:
-      "Happy with the results? Press on “Export” and choose among different options to export in various formats.",
+      "Happy with the result? Click Export and copy your palette as CSS variables, a Tailwind config snippet, or JSON.",
   },
 ];
 
 export function HowDoesItWork() {
   return (
-    <div className="default-container mt-24">
-      <div className="rounded bg-secondary/25 text-foreground grid grid-cols-[2fr_4fr] gap-8 p-10">
-        <div className="mb-6">
-          <h2 className="default-title">React Learning Roadmap</h2>
-          <p className="text-muted-foreground">
-            A step-by-step guide to becoming a React developer
+    <section className="default-container py-24">
+      <div className="rounded-2xl bg-card border border-border grid md:grid-cols-[2fr_4fr] gap-8 p-10">
+        <div>
+          <h2 className="default-title mb-3">How it works</h2>
+          <p className="text-muted-foreground text-sm leading-relaxed">
+            Five tokens. Infinite combinations. Pick, preview, ship.
           </p>
         </div>
         <Timeline steps={steps} />
       </div>
-    </div>
+    </section>
   );
 }

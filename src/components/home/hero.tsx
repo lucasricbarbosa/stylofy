@@ -3,40 +3,60 @@ import { Button } from "../ui/button";
 
 export function Hero() {
   return (
-    <main className="grid default-container items-center py-10 md:grid-cols-2 gap-8">
-      <HeroTextSection />
-      <HeroSvg />
-    </main>
+    <section className="default-container py-16 md:py-24">
+      <div className="grid md:grid-cols-2 gap-12 items-center">
+        <HeroText />
+        <div className="relative flex items-center justify-center">
+          <div className="absolute inset-0 bg-primary/5 rounded-3xl blur-3xl" />
+          <HeroSvg className="relative w-full max-w-md drop-shadow-xl" />
+        </div>
+      </div>
+    </section>
   );
 }
 
-function HeroTextSection() {
+function HeroText() {
   return (
-    <div>
-      <h1 className="text-5xl font-semibold leading-14">
+    <div className="flex flex-col gap-6">
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium w-fit">
+        <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+        Live color preview
+      </div>
+      <h1 className="text-5xl md:text-6xl font-bold tracking-tight leading-[1.1]">
         Visualize Your
         <br />
-        <span>Colors & Fonts</span>
+        <span className="text-primary">Colors & Fonts</span>
         <br />
-        On a Real Site
+        on a Real Site
       </h1>
-      <div className="pt-5">
-        <span>Choosing colors or typography for your website?</span>
-        <span className="ml-1">
-          Use the Toolbar below to realize your choices.
-        </span>
-      </div>
-      <div className="pt-5 flex items-center gap-2 ">
-        <Button className="hover:-translate-y-0.5 cursor-pointer transition-all hover:shadow">
+      <p className="text-lg text-muted-foreground leading-relaxed max-w-md">
+        Choose colors and typography for your next project and see them applied
+        to real UI components — instantly, without writing a single line of code.
+      </p>
+      <div className="flex items-center gap-3">
+        <Button className="h-11 px-6 font-semibold">
           How does it work?
         </Button>
         <Button
-          variant={"secondary"}
-          className="hover:-translate-y-0.5 bg-secondary/50 border border-secondary/50 text-foreground cursor-pointer transition-all hover:shadow"
+          variant="outline"
+          className="h-11 px-6 font-semibold"
         >
-          Get started
+          Use the toolbar ↓
         </Button>
       </div>
+      <p className="text-xs text-muted-foreground">
+        Press{" "}
+        <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border font-mono text-[10px]">T</kbd>
+        {" "}
+        <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border font-mono text-[10px]">B</kbd>
+        {" "}
+        <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border font-mono text-[10px]">P</kbd>
+        {" "}
+        <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border font-mono text-[10px]">S</kbd>
+        {" "}
+        <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border font-mono text-[10px]">A</kbd>
+        {" "}to open each color picker.
+      </p>
     </div>
   );
 }
