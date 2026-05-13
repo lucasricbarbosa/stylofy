@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
+import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 
-import { Button } from '@/components/ui/button'
-import { ButtonGroup } from '@/components/ui/button-group'
+import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 
 export function ButtonGroupNested() {
   return (
@@ -20,13 +20,13 @@ export function ButtonGroupNested() {
         </Button>
       </ButtonGroup>
       <ButtonGroup>
-        <Button variant="outline" size="icon-sm" aria-label="Previous">
+        <Button variant="outline" size="icon" aria-label="Previous">
           <ArrowLeftIcon />
         </Button>
-        <Button variant="outline" size="icon-sm" aria-label="Next">
+        <Button variant="outline" size="icon" aria-label="Next">
           <ArrowRightIcon />
         </Button>
       </ButtonGroup>
     </ButtonGroup>
-  )
+  );
 }

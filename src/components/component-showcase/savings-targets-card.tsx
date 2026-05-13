@@ -1,22 +1,27 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
-import { ShowcaseCard } from "./showcase-card"
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { ShowcaseCard } from "./showcase-card";
 
 export function SavingsTargetsCard() {
   return (
     <ShowcaseCard title="Savings Targets">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Active milestones for 2024</span>
-          <Button variant="outline" size="sm">New Goal</Button>
+          <span className="text-sm text-muted-foreground">
+            Active milestones for 2024
+          </span>
+          <Button variant="outline" size="sm">
+            New Goal
+          </Button>
         </div>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <div className="text-xs text-muted-foreground uppercase">Retirement</div>
+            <div className="text-xs text-muted-foreground uppercase">
+              Retirement
+            </div>
             <div className="text-2xl font-bold">$420,000</div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">65% achieved</span>
@@ -26,7 +31,9 @@ export function SavingsTargetsCard() {
           </div>
 
           <div className="space-y-2 pt-2 border-t">
-            <div className="text-xs text-muted-foreground uppercase">Real Estate</div>
+            <div className="text-xs text-muted-foreground uppercase">
+              Real Estate
+            </div>
             <div className="text-2xl font-bold">$85,000</div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">32% achieved</span>
@@ -41,5 +48,5 @@ export function SavingsTargetsCard() {
         </p>
       </div>
     </ShowcaseCard>
-  )
+  );
 }

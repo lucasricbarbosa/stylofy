@@ -1,16 +1,15 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { ShowcaseCard } from "./showcase-card"
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { ShowcaseCard } from "./showcase-card";
 
 export function FeedbackFormCard() {
   return (
@@ -32,11 +31,15 @@ export function FeedbackFormCard() {
 
         <div className="space-y-2">
           <label className="text-sm font-medium">Feedback</label>
-          <Textarea placeholder="Your feedback helps us improve..." className="resize-none" rows={3} />
+          <Textarea
+            placeholder="Your feedback helps us improve..."
+            className="resize-none"
+            rows={3}
+          />
         </div>
 
         <Button className="w-full">Submit</Button>
       </div>
     </ShowcaseCard>
-  )
+  );
 }

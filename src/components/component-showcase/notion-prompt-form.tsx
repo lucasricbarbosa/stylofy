@@ -218,7 +218,7 @@ export function NotionPromptForm() {
                   <PopoverTrigger asChild>
                     <InputGroupButton
                       variant="outline"
-                      size={!hasMentions ? "sm" : "icon-sm"}
+                      size={!hasMentions ? "sm" : "icon"}
                       className="rounded-full transition-transform"
                     >
                       <AtSign className="size-4" />
@@ -296,7 +296,7 @@ export function NotionPromptForm() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <InputGroupButton
-                  size="icon-sm"
+                  size="icon"
                   className="rounded-full"
                   aria-label="Attach file"
                 >
@@ -490,7 +490,7 @@ export function NotionPromptForm() {
               aria-label="Send"
               className="ml-auto rounded-full"
               variant="default"
-              size="icon-sm"
+              size="icon"
             >
               <ArrowUp className="size-4" />
             </InputGroupButton>

@@ -1,18 +1,17 @@
-"use client"
+"use client";
 
-import { XIcon } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Slider } from "@/components/ui/slider"
-import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { ShowcaseCard } from "./showcase-card"
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Textarea } from "@/components/ui/textarea";
+import { XIcon } from "lucide-react";
+import { ShowcaseCard } from "./showcase-card";
 
 export function PayoutThresholdCard() {
   return (
@@ -55,11 +54,15 @@ export function PayoutThresholdCard() {
 
         <div className="space-y-2">
           <label className="text-sm font-medium">Notes</label>
-          <Textarea placeholder="Add any notes for this payout configuration..." className="resize-none" rows={3} />
+          <Textarea
+            placeholder="Add any notes for this payout configuration..."
+            className="resize-none"
+            rows={3}
+          />
         </div>
 
         <Button className="w-full">Save Threshold</Button>
       </div>
     </ShowcaseCard>
-  )
+  );
 }

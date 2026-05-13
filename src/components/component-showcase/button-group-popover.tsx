@@ -1,14 +1,14 @@
-import { BotIcon, ChevronDownIcon } from "lucide-react"
+import { BotIcon, ChevronDownIcon } from "lucide-react";
 
-import { Button } from '@/components/ui/button'
-import { ButtonGroup } from '@/components/ui/button-group'
+import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover'
-import { Separator } from '@/components/ui/separator'
-import { Textarea } from '@/components/ui/textarea'
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 
 export function ButtonGroupPopover() {
   return (
@@ -18,7 +18,7 @@ export function ButtonGroupPopover() {
       </Button>
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" aria-label="Open Popover" size="icon-sm">
+          <Button variant="outline" aria-label="Open Popover" size="icon">
             <ChevronDownIcon />
           </Button>
         </PopoverTrigger>
@@ -41,5 +41,5 @@ export function ButtonGroupPopover() {
         </PopoverContent>
       </Popover>
     </ButtonGroup>
-  )
+  );
 }

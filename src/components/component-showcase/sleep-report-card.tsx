@@ -1,21 +1,17 @@
-"use client"
+"use client";
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { ShowcaseCard } from "./showcase-card"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ShowcaseCard } from "./showcase-card";
 
 export function SleepReportCard() {
-  const sleepData = [
-    { label: "Deep", hours: 2, color: "bg-foreground" },
-    { label: "Light", hours: 3, color: "bg-muted-foreground/60" },
-    { label: "REM", hours: 1, color: "bg-muted-foreground/40" },
-  ]
-
   return (
     <ShowcaseCard title="Sleep Report">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Last night - 7h 24m</span>
+          <span className="text-sm text-muted-foreground">
+            Last night - 7h 24m
+          </span>
         </div>
 
         <div className="flex items-end justify-between gap-1 h-24">
@@ -51,10 +47,17 @@ export function SleepReportCard() {
         </div>
 
         <div className="flex items-center justify-between pt-2">
-          <Badge variant="outline" className="text-emerald-600 border-emerald-200 bg-emerald-50">Good</Badge>
-          <Button variant="link" size="sm" className="text-xs">Details</Button>
+          <Badge
+            variant="outline"
+            className="text-emerald-600 border-emerald-200 bg-emerald-50"
+          >
+            Good
+          </Badge>
+          <Button variant="link" size="sm" className="text-xs">
+            Details
+          </Button>
         </div>
       </div>
     </ShowcaseCard>
-  )
+  );
 }

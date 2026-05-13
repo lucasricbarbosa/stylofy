@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { ShowcaseCard } from "./showcase-card"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { ShowcaseCard } from "./showcase-card";
 
 export function NoTeamMembersCard() {
   return (
@@ -10,13 +10,19 @@ export function NoTeamMembersCard() {
       <div className="flex flex-col items-center justify-center py-4 text-center">
         <div className="flex -space-x-2 mb-4">
           <Avatar className="h-10 w-10 border-2 border-background">
-            <AvatarFallback className="bg-blue-100 text-blue-600 text-sm">A</AvatarFallback>
+            <AvatarFallback className="bg-blue-100 text-blue-600 text-sm">
+              A
+            </AvatarFallback>
           </Avatar>
           <Avatar className="h-10 w-10 border-2 border-background">
-            <AvatarFallback className="bg-emerald-100 text-emerald-600 text-sm">B</AvatarFallback>
+            <AvatarFallback className="bg-emerald-100 text-emerald-600 text-sm">
+              B
+            </AvatarFallback>
           </Avatar>
           <Avatar className="h-10 w-10 border-2 border-background">
-            <AvatarFallback className="bg-orange-100 text-orange-600 text-sm">C</AvatarFallback>
+            <AvatarFallback className="bg-orange-100 text-orange-600 text-sm">
+              C
+            </AvatarFallback>
           </Avatar>
         </div>
 
@@ -28,5 +34,5 @@ export function NoTeamMembersCard() {
         <Button>Invite Members</Button>
       </div>
     </ShowcaseCard>
-  )
+  );
 }

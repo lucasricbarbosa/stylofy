@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
@@ -131,10 +133,12 @@ export default function LoginPage() {
 
       {/* Right Side - Image */}
       <div className="hidden relative lg:block flex-1 bg-gray-100">
-        <img
+        <Image
           src="https://images.unsplash.com/photo-1497215842964-222b430dc094?w=1200&q=80"
           alt="Modern office workspace in black and white"
           className="w-full h-full object-cover grayscale"
+          width={1920}
+          height={1080}
         />
         <div className="inset-0 absolute bg-primary/30 z-20" />
       </div>

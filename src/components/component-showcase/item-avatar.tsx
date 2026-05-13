@@ -1,11 +1,7 @@
-import { Plus } from "lucide-react"
+import { Plus } from "lucide-react";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Item,
   ItemActions,
@@ -13,7 +9,7 @@ import {
   ItemDescription,
   ItemMedia,
   ItemTitle,
-} from '@/components/ui/item'
+} from "@/components/ui/item";
 
 export function ItemAvatar() {
   return (
@@ -31,7 +27,7 @@ export function ItemAvatar() {
         </ItemContent>
         <ItemActions>
           <Button
-            size="icon-sm"
+            size="icon"
             variant="outline"
             className="rounded-full"
             aria-label="Invite"
@@ -74,5 +70,5 @@ export function ItemAvatar() {
         </ItemActions>
       </Item>
     </div>
-  )
+  );
 }
