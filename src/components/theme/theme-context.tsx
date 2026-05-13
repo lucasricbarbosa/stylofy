@@ -10,7 +10,12 @@ import React, {
   useState,
 } from "react";
 
-export type PaletteKey = "foreground" | "background" | "primary" | "secondary" | "accent";
+export type PaletteKey =
+  | "foreground"
+  | "background"
+  | "primary"
+  | "secondary"
+  | "accent";
 
 export type Palette = Record<PaletteKey, string>;
 
@@ -37,6 +42,23 @@ const DARK_DEFAULTS: Palette = {
 };
 
 export const PALETTE_PRESETS: PalettePreset[] = [
+  {
+    name: "Default",
+    light: {
+      foreground: "oklch(0.13 0.005 280)",
+      background: "oklch(0.99 0 0)",
+      primary: "oklch(0.55 0.22 260)",
+      secondary: "oklch(0.967 0.001 286.375)",
+      accent: "oklch(0.96 0.004 280)",
+    },
+    dark: {
+      foreground: "oklch(0.985 0 0)",
+      background: "oklch(0.145 0 0)",
+      primary: "oklch(0.424 0.199 265.638)",
+      secondary: "oklch(0.274 0.006 286.033)",
+      accent: "oklch(0.269 0 0)",
+    },
+  },
   {
     name: "Editorial",
     light: {
@@ -139,7 +161,9 @@ function getContrastColor(hex: string): string {
   if (hex.startsWith("oklch")) {
     const match = hex.match(/oklch\(\s*([0-9.]+)/);
     if (match?.[1]) {
-      return parseFloat(match[1]) > 0.5 ? "oklch(0.13 0.005 280)" : "oklch(0.97 0 0)";
+      return parseFloat(match[1]) > 0.5
+        ? "oklch(0.13 0.005 280)"
+        : "oklch(0.97 0 0)";
     }
     return "oklch(0.97 0 0)";
   }
@@ -154,7 +178,11 @@ function getContrastColor(hex: string): string {
   }
 }
 
-export function ThemeColorsProvider({ children }: { children: React.ReactNode }) {
+export function ThemeColorsProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { theme, resolvedTheme } = useTheme();
   const [colors, setColors] = useState<Palette>(LIGHT_DEFAULTS);
   const [isReady, setIsReady] = useState(false);
@@ -173,7 +201,15 @@ export function ThemeColorsProvider({ children }: { children: React.ReactNode })
     // the stylesheet's .dark / :root rules take effect, then read back the result.
     // For user-modified tokens, keep their inline style and read the current value.
     const modified = userModifiedRef.current;
-    (["foreground", "background", "primary", "secondary", "accent"] as PaletteKey[]).forEach((key) => {
+    (
+      [
+        "foreground",
+        "background",
+        "primary",
+        "secondary",
+        "accent",
+      ] as PaletteKey[]
+    ).forEach((key) => {
       if (!modified.has(key)) {
         root.style.removeProperty(`--${key}`);
         // Also clear related foreground tokens that were cascaded from old picks.
@@ -212,36 +248,64 @@ export function ThemeColorsProvider({ children }: { children: React.ReactNode })
     // etc. — those are chrome tokens that must remain stylesheet-controlled so
     // dark/light mode switching works correctly.
     if (name === "primary") {
-      document.documentElement.style.setProperty("--primary-foreground", getContrastColor(value));
+      document.documentElement.style.setProperty(
+        "--primary-foreground",
+        getContrastColor(value),
+      );
       document.documentElement.style.setProperty("--ring", value);
     } else if (name === "secondary") {
-      document.documentElement.style.setProperty("--secondary-foreground", getContrastColor(value));
+      document.documentElement.style.setProperty(
+        "--secondary-foreground",
+        getContrastColor(value),
+      );
     } else if (name === "accent") {
-      document.documentElement.style.setProperty("--accent-foreground", getContrastColor(value));
+      document.documentElement.style.setProperty(
+        "--accent-foreground",
+        getContrastColor(value),
+      );
     }
   }, []);
 
-  const applyPreset = useCallback((preset: PalettePreset) => {
-    const isDark = document.documentElement.classList.contains("dark");
-    const palette = isDark ? preset.dark : preset.light;
-    const root = document.documentElement;
+  const applyPreset = useCallback(
+    (preset: PalettePreset) => {
+      const isDark = document.documentElement.classList.contains("dark");
+      const palette = isDark ? preset.dark : preset.light;
+      const root = document.documentElement;
 
-    // Clear all palette-related inline styles so the preset starts clean.
-    const toClear = [
-      "foreground", "background", "primary", "secondary", "accent",
-      "primary-foreground", "secondary-foreground", "accent-foreground", "ring",
-    ];
-    toClear.forEach((key) => root.style.removeProperty(`--${key}`));
-    userModifiedRef.current.clear();
+      // Clear all palette-related inline styles so the preset starts clean.
+      const toClear = [
+        "foreground",
+        "background",
+        "primary",
+        "secondary",
+        "accent",
+        "primary-foreground",
+        "secondary-foreground",
+        "accent-foreground",
+        "ring",
+      ];
+      toClear.forEach((key) => root.style.removeProperty(`--${key}`));
+      userModifiedRef.current.clear();
 
-    setColors(palette);
-    Object.entries(palette).forEach(([name, value]) => {
-      updateColor(name as PaletteKey, value);
-    });
-  }, [updateColor]);
+      setColors(palette);
+      Object.entries(palette).forEach(([name, value]) => {
+        updateColor(name as PaletteKey, value);
+      });
+    },
+    [updateColor],
+  );
 
   return (
-    <ThemeContext.Provider value={{ colors, updateColor, applyPreset, isReady, activeToken, setActiveToken }}>
+    <ThemeContext.Provider
+      value={{
+        colors,
+        updateColor,
+        applyPreset,
+        isReady,
+        activeToken,
+        setActiveToken,
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );
@@ -249,6 +313,7 @@ export function ThemeColorsProvider({ children }: { children: React.ReactNode })
 
 export function useThemeColors() {
   const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error("useThemeColors must be used within ThemeColorsProvider");
+  if (!ctx)
+    throw new Error("useThemeColors must be used within ThemeColorsProvider");
   return ctx;
 }

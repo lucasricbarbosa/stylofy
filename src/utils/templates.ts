@@ -1,11 +1,11 @@
 export const templates = [
   {
-    name: "Dashboard",
-    url: "/templates/dashboard",
+    name: "Ai Page Template",
+    url: "/template/genai-ai-agency-template",
   },
   {
     name: "Login",
-    url: "/templates/login",
+    url: "/template/login",
   },
   {
     name: "Blog post",

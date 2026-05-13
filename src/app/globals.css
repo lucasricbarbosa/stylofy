@@ -124,12 +124,20 @@
   }
   body {
     @apply bg-background text-foreground;
-    transition: background-color 200ms ease, color 200ms ease;
+    transition:
+      background-color 200ms ease,
+      color 200ms ease;
   }
 }
 
 @layer components {
-  .default-container { @apply max-w-5xl mx-auto px-4; }
-  .default-title { @apply text-3xl font-bold tracking-tight; }
-  .color-transition { @apply transition-colors duration-200 ease-in-out; }
+  .default-container {
+    @apply mx-auto max-w-5xl px-4;
+  }
+  .default-title {
+    @apply text-3xl font-bold tracking-tight;
+  }
+  .color-transition {
+    @apply transition-colors duration-200 ease-in-out;
+  }
 }

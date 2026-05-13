@@ -22,15 +22,8 @@ export function ColorPickerItem({ color, name, shortcut }: ColorPickerItemProps)
   const { colors, updateColor, isReady, activeToken, setActiveToken } = useThemeColors();
   const [isOpen, setIsOpen] = useState(false);
   const [pickerKey, setPickerKey] = useState(0);
-  const [currentColor, setCurrentColor] = useState<string | undefined>(undefined);
 
-  useEffect(() => {
-    if (isReady && colors[color as PaletteKey] !== currentColor) {
-      setCurrentColor(colors[color as PaletteKey]);
-    }
-  }, [isReady, colors, color, currentColor]);
-
-  // Open when this token is activated via keyboard
+  // Open when this token is activated via keyboard shortcut.
   useEffect(() => {
     if (activeToken === color && !isOpen) {
       setIsOpen(true);
@@ -42,7 +35,6 @@ export function ColorPickerItem({ color, name, shortcut }: ColorPickerItemProps)
 
   const handleColorChange = (newColor: string) => {
     updateColor(color as PaletteKey, newColor);
-    setCurrentColor(newColor);
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -55,10 +47,10 @@ export function ColorPickerItem({ color, name, shortcut }: ColorPickerItemProps)
     }
   };
 
+  // Derive display color directly from context — no local state layer.
+  const currentColor = colors[color as PaletteKey];
   const hexColor = currentColor ? oklchToHex(currentColor) : undefined;
-  const isActive = isOpen;
 
-  // Get contrast partner for WCAG check
   const contrastPartner =
     color === "foreground"
       ? colors["background"]
@@ -77,7 +69,7 @@ export function ColorPickerItem({ color, name, shortcut }: ColorPickerItemProps)
           className={cn(
             "relative flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-150 cursor-pointer outline-none",
             "hover:bg-muted/60",
-            isActive && "bg-muted ring-1 ring-border",
+            isOpen && "bg-muted ring-1 ring-border",
             !isReady && "opacity-40 pointer-events-none",
           )}
           disabled={!isReady}

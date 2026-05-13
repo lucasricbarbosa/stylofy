@@ -20,7 +20,7 @@ export function HeaderNav() {
             <NavigationMenuTrigger className="font-normal flex cursor-pointer items-baseline px-2.5 py-1 h-fit">
               Templates
             </NavigationMenuTrigger>
-            <NavigationMenuContent>
+            <NavigationMenuContent className="min-w-[220px]">
               {templates.map((template) => (
                 <DropdownItem
                   key={template.url}
