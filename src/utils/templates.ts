@@ -11,4 +11,8 @@ export const templates = [
     name: "Components Showcase",
     url: "/template/components-showcase",
   },
+  {
+    name: "Documentation",
+    url: "/template/docs",
+  },
 ];

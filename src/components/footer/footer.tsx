@@ -19,7 +19,7 @@ export function Footer() {
             }}
           />
           <span className="font-mono text-[12px]">
-            stylofy · made for color obsessives
+            stylofy · made for color obsessives · by @lucasricardo
           </span>
         </div>
 

@@ -38,10 +38,10 @@ export function Hero() {
           Explore features <span aria-hidden>→</span>
         </Link>
         <Link
-          href="/"
+          href="/template/genai-ai-agency-template"
           className="inline-flex items-center gap-2 rounded-full px-[18px] py-[13px] text-[14.5px] font-medium text-foreground transition-colors hover:bg-muted max-md:px-4 max-md:py-3 max-md:text-sm"
         >
-          See the code
+          See a template
         </Link>
       </div>
 

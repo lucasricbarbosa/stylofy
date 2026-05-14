@@ -2,11 +2,18 @@ import Link from "next/link";
 
 const TEMPLATES = [
   {
-    name: "Landing",
-    slug: "landing",
+    name: "Agency",
+    slug: "agency",
     href: "/template/genai-ai-agency-template",
     meta: "9 sections",
     thumb: "t-landing",
+  },
+  {
+    name: "Login",
+    slug: "login",
+    href: "/template/login",
+    meta: "12 components",
+    thumb: "t-agency",
   },
   {
     name: "Components",
@@ -16,11 +23,11 @@ const TEMPLATES = [
     thumb: "t-components",
   },
   {
-    name: "Agency",
-    slug: "agency",
-    href: "/template/genai-ai-agency-template",
-    meta: "12 components",
-    thumb: "t-agency",
+    name: "Documentation",
+    slug: "docs",
+    href: "/template/docs",
+    meta: "5 sections",
+    thumb: "t-docs",
   },
 ];
 
@@ -46,7 +53,7 @@ export function TemplatesSection() {
       </div>
 
       {/* Template cards */}
-      <div className="grid grid-cols-3 gap-4 max-md:grid-cols-1">
+      <div className="grid grid-cols-4 gap-4 max-lg:grid-cols-2 max-md:grid-cols-1">
         {TEMPLATES.map((t) => (
           <Link
             key={t.slug}

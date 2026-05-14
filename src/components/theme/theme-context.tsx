@@ -105,7 +105,7 @@ export const PALETTE_PRESETS: PalettePreset[] = [
     },
     dark: {
       foreground: "#f1f9f1",
-      background: "#061a07",
+      background: "#000701",
       primary: "#CCFF00",
       secondary: "#1e3b1e",
       accent: "#083511",
