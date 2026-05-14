@@ -1,9 +1,12 @@
 export function BentoLivePreview() {
   return (
-    <article className="bento-card col-span-6 row-span-2 p-0 md:col-span-4" id="features">
+    <article
+      className="bento-card col-span-6 row-span-2 p-0 md:col-span-4"
+      id="features"
+    >
       <div className="flex h-full min-h-[380px] flex-col">
         {/* Browser chrome */}
-        <div className="flex items-center gap-2 border-b border-border bg-background px-4 py-3">
+        <div className="sm:flex hidden items-center gap-2 border-b border-border bg-background px-4 py-3">
           <span className="flex gap-1.5">
             {[0, 1, 2].map((i) => (
               <i
@@ -24,9 +27,7 @@ export function BentoLivePreview() {
               <span
                 key={tab}
                 className={`rounded-md px-2.5 py-1 font-mono text-[11px] transition-colors ${
-                  i === 0
-                    ? "bg-muted text-foreground"
-                    : "text-muted-foreground"
+                  i === 0 ? "bg-muted text-foreground" : "text-muted-foreground"
                 }`}
               >
                 {tab}
@@ -45,17 +46,35 @@ export function BentoLivePreview() {
             style={{ fontSize: "clamp(26px, 3vw, 40px)" }}
           >
             Your tokens, on real UI —{" "}
-            <em className="font-serif italic" style={{ color: "var(--primary)" }}>
+            <em
+              className="font-serif italic"
+              style={{ color: "var(--primary)" }}
+            >
               not a swatch chart.
             </em>
           </h3>
 
           {/* Mini dashboard cards */}
-          <div className="mt-auto grid grid-cols-3 gap-3">
+          <div className="mt-auto grid gap-3">
             {[
-              { label: "MRR", value: "$48,210", width: "72%", token: "primary" },
-              { label: "Churn", value: "2.1%", width: "41%", token: "secondary" },
-              { label: "Active", value: "12,840", width: "88%", token: "accent" },
+              {
+                label: "MRR",
+                value: "$48,210",
+                width: "72%",
+                token: "primary",
+              },
+              {
+                label: "Churn",
+                value: "2.1%",
+                width: "41%",
+                token: "secondary",
+              },
+              {
+                label: "Active",
+                value: "12,840",
+                width: "88%",
+                token: "accent",
+              },
             ].map(({ label, value, width, token }) => (
               <div
                 key={label}
