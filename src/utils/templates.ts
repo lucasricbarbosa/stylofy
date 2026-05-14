@@ -1,6 +1,6 @@
 export const templates = [
   {
-    name: "Ai Page Template",
+    name: "AI Agency",
     url: "/template/genai-ai-agency-template",
   },
   {
@@ -8,7 +8,7 @@ export const templates = [
     url: "/template/login",
   },
   {
-    name: "Blog post",
-    url: "/templates/blog-post",
+    name: "Components Showcase",
+    url: "/template/components-showcase",
   },
 ];

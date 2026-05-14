@@ -1,6 +1,5 @@
 import { templates } from "@/utils/templates";
 import Link from "next/link";
-import { CustomLink } from "../custom-link";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -10,43 +9,49 @@ import {
   NavigationMenuTrigger,
 } from "../ui/navigation-menu";
 
+const NAV_LINKS = [
+  { label: "Playground", href: "/" },
+  { label: "Export", href: "/" },
+];
+
 export function HeaderNav() {
   return (
-    <nav className="flex items-center gap-4">
-      <CustomLink className="text-sm" label="Docs" url="/" />
+    <nav className="hidden items-center gap-1 md:flex">
+      {NAV_LINKS.map(({ label, href }) => (
+        <Link
+          key={label}
+          href={href}
+          className="rounded-full px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          {label}
+        </Link>
+      ))}
+
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="font-normal flex cursor-pointer items-baseline px-2.5 py-1 h-fit">
+            <NavigationMenuTrigger className="rounded-full px-3 py-1.5 text-sm font-normal text-muted-foreground transition-colors hover:bg-muted hover:text-foreground data-[state=open]:bg-muted data-[state=open]:text-foreground h-auto bg-transparent">
               Templates
             </NavigationMenuTrigger>
-            <NavigationMenuContent className="min-w-[220px]">
-              {templates.map((template) => (
-                <DropdownItem
-                  key={template.url}
-                  name={template.name}
-                  url={template.url}
-                />
-              ))}
+            <NavigationMenuContent>
+              <ul className="w-[220px] p-1">
+                {templates.map((t) => (
+                  <li key={t.url}>
+                    <NavigationMenuLink asChild>
+                      <Link
+                        href={t.url}
+                        className="block rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      >
+                        {t.name}
+                      </Link>
+                    </NavigationMenuLink>
+                  </li>
+                ))}
+              </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
     </nav>
-  );
-}
-
-interface DropdownItemProps {
-  url: string;
-  name: string;
-}
-
-function DropdownItem({ url, name }: DropdownItemProps) {
-  return (
-    <NavigationMenuLink asChild>
-      <Link href={url} className="block px-3 py-2 rounded hover:bg-accent">
-        {name}
-      </Link>
-    </NavigationMenuLink>
   );
 }

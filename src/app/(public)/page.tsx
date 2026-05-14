@@ -1,15 +1,15 @@
+import { BentoGrid } from "@/components/home/bento-grid";
+import { CTASection } from "@/components/home/cta-section";
 import { Hero } from "@/components/home/hero";
-import { HowDoesItWork } from "@/components/home/how-does-it-work";
-import { SomeComponentsToTest } from "@/components/home/some-components-to-test";
-import { WhyStylofy } from "@/components/home/why-stylofy";
+import { TemplatesSection } from "@/components/home/templates-section";
 
 export default function Home() {
   return (
     <>
       <Hero />
-      <WhyStylofy />
-      <HowDoesItWork />
-      <SomeComponentsToTest />
+      <BentoGrid />
+      <TemplatesSection />
+      <CTASection />
     </>
   );
 }
