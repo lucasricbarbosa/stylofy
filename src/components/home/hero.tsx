@@ -30,16 +30,16 @@ export function Hero() {
       </p>
 
       {/* CTAs */}
-      <div className="flex items-center gap-2.5">
+      <div className="flex sm:flex-row flex-col sm:items-center gap-2.5">
         <Link
           href="#features"
-          className="inline-flex items-center gap-2 rounded-full border border-foreground bg-foreground px-[22px] py-[13px] text-[14.5px] font-medium text-background transition-transform hover:-translate-y-px max-md:px-4 max-md:py-3 max-md:text-sm"
+          className="inline-flex w-fit items-center gap-2 rounded-full border border-foreground bg-foreground px-[22px] py-[13px] text-[14.5px] font-medium text-background transition-transform hover:-translate-y-px max-md:px-4 max-md:py-3 max-md:text-sm"
         >
           Explore features <span aria-hidden>→</span>
         </Link>
         <Link
           href="/template/genai-ai-agency-template"
-          className="inline-flex items-center gap-2 rounded-full px-[18px] py-[13px] text-[14.5px] font-medium text-foreground transition-colors hover:bg-muted max-md:px-4 max-md:py-3 max-md:text-sm"
+          className="inline-flex w-fit items-center gap-2 rounded-full px-[18px] py-[13px] text-[14.5px] font-medium text-foreground transition-colors hover:bg-muted max-md:px-4 max-md:py-3 max-md:text-sm"
         >
           See a template
         </Link>

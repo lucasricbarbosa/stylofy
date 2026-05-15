@@ -48,7 +48,6 @@ export function TailwindPicker({ onSelect }: TailwindPickerProps) {
       <PopoverContent className="w-80 p-3" align="start" sideOffset={6}>
         <div className="flex flex-col gap-2">
           <input
-            autoFocus
             placeholder="Search colors…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}

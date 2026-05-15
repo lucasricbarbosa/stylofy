@@ -32,16 +32,16 @@ export function CTASection() {
           Free while in beta. Bring your own design system.
         </p>
 
-        <div className="relative flex items-center justify-center gap-2.5">
+        <div className="relative flex sm:flex-row flex-col items-center justify-center gap-2.5">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 rounded-full border border-foreground bg-foreground px-[22px] py-[13px] text-[14.5px] font-medium text-background transition-transform hover:-translate-y-px"
+            className="inline-flex w-fit items-center gap-2 rounded-full border border-foreground bg-foreground px-[22px] py-[13px] text-[14.5px] font-medium text-background transition-transform hover:-translate-y-px"
           >
             Open playground <span aria-hidden>→</span>
           </Link>
           <Link
             href="/template/components-showcase"
-            className="inline-flex items-center gap-2 rounded-full px-[18px] py-[13px] text-[14.5px] font-medium text-foreground transition-colors hover:bg-muted"
+            className="inline-flex w-fit items-center gap-2 rounded-full px-[18px] py-[13px] text-[14.5px] font-medium text-foreground transition-colors hover:bg-muted"
           >
             View components
           </Link>
