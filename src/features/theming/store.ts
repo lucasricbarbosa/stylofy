@@ -1,5 +1,6 @@
 "use client";
 
+import { useTheme } from "next-themes";
 import React, {
   createContext,
   useCallback,
@@ -7,9 +8,8 @@ import React, {
   useEffect,
   useReducer,
 } from "react";
-import { useTheme } from "next-themes";
 import { LocalThemesProvider } from "./hooks/useLocalThemes";
-import { SHADCN_LIGHT_DEFAULTS } from "./lib/defaults";
+import { SHADCN_DARK_DEFAULTS, SHADCN_LIGHT_DEFAULTS } from "./lib/defaults";
 import { deriveShadcnTokens } from "./lib/derive-shadcn";
 import type {
   BuiltInPreset,
@@ -23,7 +23,7 @@ import type {
 } from "./types";
 
 const HISTORY_CAP = 50;
-const STORAGE_KEY = "stylofy:theming:v2:working";
+const STORAGE_KEY = "stylofy:theming:v3:working";
 
 // ── Simple → Shadcn token mapping ─────────────────────────────────────────────
 // Defines which shadcn tokens are derived from each simple key. Used in
@@ -32,25 +32,45 @@ const STORAGE_KEY = "stylofy:theming:v2:working";
 
 const SIMPLE_TO_SHADCN_MAP: Record<keyof SimpleTokens, Set<ShadcnToken>> = {
   foreground: new Set<ShadcnToken>([
-    "foreground", "card-foreground", "popover-foreground",
-    "muted-foreground", "sidebar-foreground",
+    "foreground",
+    "card-foreground",
+    "popover-foreground",
+    "muted-foreground",
+    "sidebar-foreground",
   ]),
   background: new Set<ShadcnToken>([
-    "background", "card", "popover",
-    "border", "input", "sidebar", "sidebar-border",
+    "background",
+    "card",
+    "popover",
+    "border",
+    "input",
+    "sidebar",
+    "sidebar-border",
     "muted-foreground", // blend of foreground + background
   ]),
   primary: new Set<ShadcnToken>([
-    "primary", "primary-foreground", "ring",
-    "sidebar-primary", "sidebar-primary-foreground", "sidebar-ring",
+    "primary",
+    "primary-foreground",
+    "ring",
+    "sidebar-primary",
+    "sidebar-primary-foreground",
+    "sidebar-ring",
   ]),
   secondary: new Set<ShadcnToken>([
-    "secondary", "secondary-foreground", "muted",
+    "secondary",
+    "secondary-foreground",
+    "muted",
   ]),
   accent: new Set<ShadcnToken>([
-    "accent", "accent-foreground",
-    "chart-1", "chart-2", "chart-3", "chart-4", "chart-5",
-    "sidebar-accent", "sidebar-accent-foreground",
+    "accent",
+    "accent-foreground",
+    "chart-1",
+    "chart-2",
+    "chart-3",
+    "chart-4",
+    "chart-5",
+    "sidebar-accent",
+    "sidebar-accent-foreground",
   ]),
 };
 
@@ -88,9 +108,17 @@ const DEFAULT_SIMPLE: SimpleTokens = {
   accent: SHADCN_LIGHT_DEFAULTS.accent,
 };
 
+function tokenValuesToModeTheme(tv: Record<string, string>): ModeTheme {
+  const result: Record<string, { value: string; source: "derived" }> = {};
+  for (const k of Object.keys(tv)) {
+    result[k] = { value: tv[k], source: "derived" };
+  }
+  return result as ModeTheme;
+}
+
 function buildInitialState(): ThemeState {
   const light = deriveShadcnTokens(DEFAULT_SIMPLE, "light");
-  const dark = deriveShadcnTokens(DEFAULT_SIMPLE, "dark");
+  const dark = tokenValuesToModeTheme(SHADCN_DARK_DEFAULTS);
   return {
     simple: DEFAULT_SIMPLE,
     light,
@@ -113,15 +141,14 @@ function reducer(state: ThemeState, action: Action): ThemeState {
       const mapped = SIMPLE_TO_SHADCN_MAP[action.key];
       const isLight = state.activeMode === "light";
 
-      const freshLight = deriveShadcnTokens(newSimple, "light");
-      const freshDark = deriveShadcnTokens(newSimple, "dark");
+      // Only recompute and update the active mode.
+      // The inactive mode is left completely untouched — no cross-mode propagation.
+      const freshActive = deriveShadcnTokens(newSimple, state.activeMode);
 
-      // Active mode: reset mapped tokens to derived (clear their overrides).
-      // Inactive mode: preserve ALL overrides — only update derived tokens.
-      const mergeOverrides = (fresh: ModeTheme, prev: ModeTheme, isActive: boolean): ModeTheme => {
+      const mergeActive = (fresh: ModeTheme, prev: ModeTheme): ModeTheme => {
         const result = { ...fresh };
         for (const token of Object.keys(prev) as ShadcnToken[]) {
-          if (prev[token].source === "override" && (!isActive || !mapped.has(token))) {
+          if (prev[token].source === "override" && !mapped.has(token)) {
             result[token] = prev[token];
           }
         }
@@ -131,8 +158,8 @@ function reducer(state: ThemeState, action: Action): ThemeState {
       return {
         ...next,
         simple: newSimple,
-        light: mergeOverrides(freshLight, state.light, isLight),
-        dark: mergeOverrides(freshDark, state.dark, !isLight),
+        light: isLight ? mergeActive(freshActive, state.light) : state.light,
+        dark: !isLight ? mergeActive(freshActive, state.dark) : state.dark,
       };
     }
 
@@ -143,7 +170,10 @@ function reducer(state: ThemeState, action: Action): ThemeState {
           ...next,
           light: {
             ...state.light,
-            [action.token]: { value: action.value, source: "override" as const },
+            [action.token]: {
+              value: action.value,
+              source: "override" as const,
+            },
           },
         };
       } else {
@@ -151,7 +181,10 @@ function reducer(state: ThemeState, action: Action): ThemeState {
           ...next,
           dark: {
             ...state.dark,
-            [action.token]: { value: action.value, source: "override" as const },
+            [action.token]: {
+              value: action.value,
+              source: "override" as const,
+            },
           },
         };
       }
@@ -201,14 +234,11 @@ function reducer(state: ThemeState, action: Action): ThemeState {
 
     case "APPLY_PRESET": {
       const { preset } = action;
-      const newSimple = preset.simple;
-      const newLight = preset.light ?? deriveShadcnTokens(newSimple, "light");
-      const newDark = preset.dark ?? deriveShadcnTokens(newSimple, "dark");
       return {
         ...state,
-        simple: newSimple,
-        light: newLight,
-        dark: newDark,
+        simple: preset.simple,
+        light: preset.light,
+        dark: preset.dark,
         past: [],
         future: [],
       };
@@ -260,7 +290,9 @@ interface ThemingStoreContextValue {
   canRedo: boolean;
 }
 
-const ThemingContext = createContext<ThemingStoreContextValue | undefined>(undefined);
+const ThemingContext = createContext<ThemingStoreContextValue | undefined>(
+  undefined,
+);
 
 // ── Persistence ───────────────────────────────────────────────────────────────
 
@@ -283,7 +315,11 @@ function loadPersistedState(): Partial<ThemeState> {
 
 // ── Provider ──────────────────────────────────────────────────────────────────
 
-export function ThemingStoreProvider({ children }: { children: React.ReactNode }) {
+export function ThemingStoreProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { resolvedTheme } = useTheme();
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE, (init) => ({
     ...init,
@@ -318,7 +354,7 @@ export function ThemingStoreProvider({ children }: { children: React.ReactNode }
             light: state.light,
             dark: state.dark,
             activeMode: state.activeMode,
-          })
+          }),
         );
       } catch {}
     }, 400);
@@ -344,7 +380,8 @@ export const ShadcnThemeStoreProvider = ThemingStoreProvider;
 
 export function useThemingStore(): ThemingStoreContextValue {
   const ctx = useContext(ThemingContext);
-  if (!ctx) throw new Error("useThemingStore must be used inside ThemingStoreProvider");
+  if (!ctx)
+    throw new Error("useThemingStore must be used inside ThemingStoreProvider");
   return ctx;
 }
 
@@ -356,17 +393,15 @@ interface LegacyStoreValue {
     light: TokenValues;
     dark: TokenValues;
     mode: ThemeMode;
-    darkManuallySet: Partial<Record<ShadcnToken, true>>;
     past: unknown[];
     future: unknown[];
   };
   setToken: (token: ShadcnToken, value: string) => void;
   setMode: (mode: ThemeMode) => void;
-  applyTheme: (light: TokenValues, dark: TokenValues, lockDark?: boolean) => void;
+  applyTheme: (light: TokenValues, dark: TokenValues) => void;
   reset: () => void;
   undo: () => void;
   redo: () => void;
-  unlinkDark: (token: ShadcnToken) => void;
   canUndo: boolean;
   canRedo: boolean;
 }
@@ -385,18 +420,19 @@ export function useStore(): LegacyStoreValue {
   const setToken = useCallback(
     (token: ShadcnToken, value: string) =>
       dispatch({ type: "SET_SHADCN_TOKEN", token, value }),
-    [dispatch]
+    [dispatch],
   );
 
   const setMode = useCallback(
     (mode: ThemeMode) => dispatch({ type: "SET_ACTIVE_MODE", mode }),
-    [dispatch]
+    [dispatch],
   );
 
   const applyTheme = useCallback(
     (light: TokenValues, dark: TokenValues) => {
       const toLegacyModeTheme = (tv: TokenValues): ModeTheme => {
-        const result: Record<string, { value: string; source: "override" }> = {};
+        const result: Record<string, { value: string; source: "override" }> =
+          {};
         for (const k of Object.keys(tv)) {
           result[k] = { value: tv[k as ShadcnToken], source: "override" };
         }
@@ -420,26 +456,21 @@ export function useStore(): LegacyStoreValue {
         },
       });
     },
-    [dispatch]
+    [dispatch],
   );
 
   const reset = useCallback(
     () => dispatch({ type: "RESET_ALL_TO_DERIVED" }),
-    [dispatch]
+    [dispatch],
   );
   const undo = useCallback(() => dispatch({ type: "UNDO" }), [dispatch]);
   const redo = useCallback(() => dispatch({ type: "REDO" }), [dispatch]);
-  const unlinkDark = useCallback(
-    (token: ShadcnToken) => dispatch({ type: "RESET_TOKEN_TO_DERIVED", token }),
-    [dispatch]
-  );
 
   return {
     state: {
       light: modeThemeToTokenValues(state.light),
       dark: modeThemeToTokenValues(state.dark),
       mode: state.activeMode,
-      darkManuallySet: {},
       past: state.past,
       future: state.future,
     },
@@ -449,7 +480,6 @@ export function useStore(): LegacyStoreValue {
     reset,
     undo,
     redo,
-    unlinkDark,
     canUndo,
     canRedo,
   };

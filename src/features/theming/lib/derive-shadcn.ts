@@ -1,6 +1,11 @@
 import { oklch, parse } from "culori";
-import type { ModeTheme, SimpleTokens, ShadcnToken, ThemeMode, TokenValue } from "../types";
-import { deriveDarkFromLight } from "./derive";
+import type {
+  ModeTheme,
+  ShadcnToken,
+  SimpleTokens,
+  ThemeMode,
+  TokenValue,
+} from "../types";
 
 function clamp(v: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, v));
@@ -68,18 +73,9 @@ const DESTRUCTIVE = "oklch(0.577 0.245 27.325)";
 export function deriveShadcnTokens(
   simple: SimpleTokens,
   mode: ThemeMode,
-  existing?: ModeTheme
+  existing?: ModeTheme,
 ): ModeTheme {
-  const s =
-    mode === "dark"
-      ? {
-          foreground: deriveDarkFromLight(simple.foreground, "foreground"),
-          background: deriveDarkFromLight(simple.background, "background"),
-          primary: deriveDarkFromLight(simple.primary, "primary"),
-          secondary: deriveDarkFromLight(simple.secondary, "secondary"),
-          accent: deriveDarkFromLight(simple.accent, "accent"),
-        }
-      : simple;
+  const s = simple;
 
   // Border is slightly darker in light mode, slightly lighter in dark mode
   const borderDelta = mode === "dark" ? 0.08 : -0.08;

@@ -74,8 +74,8 @@ export interface BuiltInPreset {
   description: string;
   level: "simple" | "advanced";
   simple: SimpleTokens;
-  light?: ModeTheme; // advanced presets only
-  dark?: ModeTheme;
+  light: ModeTheme;
+  dark: ModeTheme;
 }
 
 export interface SavedTheme {

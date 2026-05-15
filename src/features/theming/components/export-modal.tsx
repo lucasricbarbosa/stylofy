@@ -37,11 +37,26 @@ function modeThemeToTokenValues(mt: ModeTheme): TokenValues {
 // Lightweight CSS syntax highlighting — ES2017 safe: no lookbehind, no /s flag.
 function highlight(css: string): string {
   return css
-    .replace(/(:root|\.dark)/g, '<span style="color:var(--chart-1)">$1</span>')
-    .replace(/(--[\w-]+)(?=\s*:)/g, '<span style="color:var(--primary)">$1</span>')
-    .replace(/(:\s*)((?:oklch|hsl|rgb)[^;]+)/g, '$1<span style="color:var(--chart-2)">$2</span>')
-    .replace(/(:\s*)(#[\da-fA-F]{3,8})/g, '$1<span style="color:var(--chart-2)">$2</span>')
-    .replace(/(:\s*)([\d.]+rem)/g, '$1<span style="color:var(--chart-3)">$2</span>');
+    .replace(
+      /(:root|\.dark)/g,
+      '<span style="color:var(--foreground)">$1</span>',
+    )
+    .replace(
+      /(--[\w-]+)(?=\s*:)/g,
+      '<span style="color:var(--foreground)">$1</span>',
+    )
+    .replace(
+      /(:\s*)((?:oklch|hsl|rgb)[^;]+)/g,
+      '$1<span style="color:var(--foreground)">$2</span>',
+    )
+    .replace(
+      /(:\s*)(#[\da-fA-F]{3,8})/g,
+      '$1<span style="color:var(--foreground)">$2</span>',
+    )
+    .replace(
+      /(:\s*)([\d.]+rem)/g,
+      '$1<span style="color:var(--foreground)">$2</span>',
+    );
 }
 
 export function ExportModal({ open, onClose }: ExportModalProps) {
@@ -105,7 +120,11 @@ export function ExportModal({ open, onClose }: ExportModalProps) {
               copied && "text-emerald-600",
             )}
           >
-            {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+            {copied ? (
+              <Check className="size-3" />
+            ) : (
+              <Copy className="size-3" />
+            )}
             {copied ? "Copied!" : "Copy"}
           </button>
           <pre

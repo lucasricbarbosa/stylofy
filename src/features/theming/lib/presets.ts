@@ -20,6 +20,30 @@ function toModeTheme(tv: TokenValues): ModeTheme {
   return result as ModeTheme;
 }
 
+function simplePreset(
+  name: string,
+  description: string,
+  lightOverrides: Partial<TokenValues>,
+  darkOverrides: Partial<TokenValues>,
+): BuiltInPreset {
+  const lt = lv(lightOverrides);
+  const dk = dv(darkOverrides);
+  return {
+    name,
+    description,
+    level: "simple",
+    simple: {
+      foreground: lt.foreground,
+      background: lt.background,
+      primary: lt.primary,
+      secondary: lt.secondary,
+      accent: lt.accent,
+    },
+    light: toModeTheme(lt),
+    dark: toModeTheme(dk),
+  };
+}
+
 function advancedPreset(
   name: string,
   description: string,
@@ -47,102 +71,150 @@ function advancedPreset(
 // ── Simple presets (toolbar level) ───────────────────────────────────────────
 
 export const BUILT_IN_PRESETS: BuiltInPreset[] = [
-  {
-    name: "Default",
-    description: "Shadcn&apos;s out-of-the-box neutral palette",
-    level: "simple",
-    simple: {
+  simplePreset(
+    "Default",
+    "Shadcn&apos;s out-of-the-box neutral palette",
+    {
       foreground: "oklch(0.145 0 0)",
       background: "oklch(1 0 0)",
       primary: "oklch(0.205 0 0)",
       secondary: "oklch(0.97 0 0)",
       accent: "oklch(0.97 0 0)",
     },
-  },
-  {
-    name: "Claude",
-    description: "Warm amber inspired by Anthropic",
-    level: "simple",
-    simple: {
+    {
+      background: "oklch(0.145 0 0)",
+      foreground: "oklch(0.985 0 0)",
+      primary: "oklch(0.922 0 0)",
+      secondary: "oklch(0.269 0 0)",
+      accent: "oklch(0.269 0 0)",
+    },
+  ),
+  simplePreset(
+    "Claude",
+    "Warm amber inspired by Anthropic",
+    {
       foreground: SHADCN_LIGHT_DEFAULTS.foreground,
       background: SHADCN_LIGHT_DEFAULTS.background,
       primary: "oklch(0.72 0.19 55)",
       secondary: "oklch(0.96 0.03 60)",
       accent: "oklch(0.90 0.08 75)",
     },
-  },
-  {
-    name: "Clean Slate",
-    description: "Pure black and white, zero noise",
-    level: "simple",
-    simple: {
+    {
+      background: "oklch(0.16 0.025 50)",
+      foreground: "oklch(0.93 0.01 60)",
+      primary: "oklch(0.78 0.18 55)",
+      secondary: "oklch(0.24 0.025 55)",
+      accent: "oklch(0.35 0.08 70)",
+    },
+  ),
+  simplePreset(
+    "Clean Slate",
+    "Pure black and white, zero noise",
+    {
       foreground: SHADCN_LIGHT_DEFAULTS.foreground,
       background: SHADCN_LIGHT_DEFAULTS.background,
       primary: "oklch(0.10 0 0)",
       secondary: "oklch(0.94 0 0)",
       accent: "oklch(0.94 0 0)",
     },
-  },
-  {
-    name: "Corporate",
-    description: "Professional steel blue for enterprise apps",
-    level: "simple",
-    simple: {
+    {
+      background: "oklch(0.10 0 0)",
+      foreground: "oklch(0.96 0 0)",
+      primary: "oklch(0.92 0 0)",
+      secondary: "oklch(0.18 0 0)",
+      accent: "oklch(0.18 0 0)",
+    },
+  ),
+  simplePreset(
+    "Corporate",
+    "Professional steel blue for enterprise apps",
+    {
       foreground: "oklch(0.16 0.025 258)",
       background: "oklch(0.98 0.004 256)",
       primary: "oklch(0.46 0.17 252)",
       secondary: "oklch(0.94 0.014 250)",
       accent: "oklch(0.88 0.04 250)",
     },
-  },
-  {
-    name: "Caffeine",
-    description: "Rich coffee and warm cream tones",
-    level: "simple",
-    simple: {
+    {
+      background: "oklch(0.14 0.03 258)",
+      foreground: "oklch(0.94 0.008 256)",
+      primary: "oklch(0.62 0.18 252)",
+      secondary: "oklch(0.22 0.025 254)",
+      accent: "oklch(0.32 0.06 252)",
+    },
+  ),
+  simplePreset(
+    "Caffeine",
+    "Rich coffee and warm cream tones",
+    {
       foreground: "oklch(0.20 0.03 50)",
       background: "oklch(0.97 0.01 58)",
       primary: "oklch(0.40 0.10 45)",
       secondary: "oklch(0.91 0.02 52)",
       accent: "oklch(0.65 0.12 55)",
     },
-  },
-  {
-    name: "Art Deco",
-    description: "Geometric gold and deep black elegance",
-    level: "simple",
-    simple: {
+    {
+      background: "oklch(0.14 0.025 45)",
+      foreground: "oklch(0.93 0.01 58)",
+      primary: "oklch(0.70 0.12 60)",
+      secondary: "oklch(0.22 0.022 48)",
+      accent: "oklch(0.35 0.08 52)",
+    },
+  ),
+  simplePreset(
+    "Art Deco",
+    "Geometric gold and deep black elegance",
+    {
       foreground: "oklch(0.12 0.015 80)",
       background: "oklch(0.98 0.005 85)",
       primary: "oklch(0.62 0.14 80)",
       secondary: "oklch(0.93 0.025 82)",
       accent: "oklch(0.80 0.10 88)",
     },
-  },
-  {
-    name: "Ghibli Studio",
-    description: "Soft sage, earth, and gentle skies",
-    level: "simple",
-    simple: {
+    {
+      background: "oklch(0.11 0.012 78)",
+      foreground: "oklch(0.94 0.02 85)",
+      primary: "oklch(0.78 0.16 82)",
+      secondary: "oklch(0.20 0.020 78)",
+      accent: "oklch(0.28 0.06 80)",
+    },
+  ),
+  simplePreset(
+    "Ghibli Studio",
+    "Soft sage, earth, and gentle skies",
+    {
       foreground: "oklch(0.22 0.025 142)",
       background: "oklch(0.97 0.012 135)",
       primary: "oklch(0.50 0.12 148)",
       secondary: "oklch(0.92 0.024 138)",
       accent: "oklch(0.78 0.10 165)",
     },
-  },
-  {
-    name: "Elegant Luxury",
-    description: "Deep navy meets champagne gold",
-    level: "simple",
-    simple: {
+    {
+      background: "oklch(0.16 0.028 148)",
+      foreground: "oklch(0.93 0.012 138)",
+      primary: "oklch(0.66 0.13 152)",
+      secondary: "oklch(0.25 0.028 148)",
+      accent: "oklch(0.32 0.06 158)",
+    },
+  ),
+  simplePreset(
+    "Elegant Luxury",
+    "Deep navy meets champagne gold",
+    {
       foreground: "oklch(0.16 0.035 268)",
       background: "oklch(0.97 0.008 260)",
       primary: "oklch(0.62 0.13 82)",
       secondary: "oklch(0.93 0.018 262)",
       accent: "oklch(0.82 0.10 88)",
     },
-  },
+    {
+      background: "oklch(0.12 0.04 268)",
+      foreground: "oklch(0.94 0.012 260)",
+      primary: "oklch(0.78 0.14 84)",
+      secondary: "oklch(0.22 0.04 268)",
+      accent: "oklch(0.32 0.06 84)",
+    },
+  ),
 
   // ── Advanced presets (full 33-token coverage) ─────────────────────────────
 

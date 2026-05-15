@@ -42,7 +42,7 @@ export function ThemeSelector({ onExportTheme }: ThemeSelectorProps) {
               <div key={t.id} className="flex items-center group">
                 <DropdownMenuItem
                   className="flex-1 cursor-pointer"
-                  onClick={() => applyTheme(t.light, t.dark, true)}
+                  onClick={() => applyTheme(t.light, t.dark)}
                 >
                   {t.name}
                 </DropdownMenuItem>

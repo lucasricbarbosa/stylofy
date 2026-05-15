@@ -1,16 +1,14 @@
 "use client";
 
-import type { PaletteKey } from "@/components/theme/theme-context";
-import { useThemeColors } from "@/components/theme/theme-context";
-import { ColorPickerPopover } from "@/features/theming/components/color-picker-popover";
+import { ColorPicker } from "@/components/color-picker/color-picker";
 import { ThemingDrawer } from "@/features/theming/components/theming-drawer";
+import { deriveShadcnTokens } from "@/features/theming/lib/derive-shadcn";
 import { useThemingStore } from "@/features/theming/store";
 import type { ShadcnToken, SimpleTokens } from "@/features/theming/types";
 import { cn } from "@/lib/utils";
-import { oklchToHex } from "@/utils/colors";
 import { toolbarItems } from "@/utils/toolbar-items";
 import { Paintbrush, Palette } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { ThemeToggle } from "../theme/theme-toggle";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { ColorPickerItem } from "./color-picker-item";
@@ -18,37 +16,8 @@ import { FontPicker } from "./font-picker";
 import { PaletteExport } from "./palette-export";
 import { PresetPicker } from "./preset-picker";
 
-const SHORTCUT_MAP: Record<string, string> = {
-  t: "foreground",
-  b: "background",
-  p: "primary",
-  s: "secondary",
-  a: "accent",
-};
-
 export function Toolbar() {
-  const { setActiveToken } = useThemeColors();
   const [isThemingOpen, setIsThemingOpen] = useState(false);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement
-      )
-        return;
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-      const token = SHORTCUT_MAP[e.key.toLowerCase()];
-      if (token) {
-        setActiveToken(token as Parameters<typeof setActiveToken>[0]);
-      }
-      if (e.key === "Escape") {
-        setActiveToken(null);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [setActiveToken]);
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
@@ -104,23 +73,7 @@ export function Toolbar() {
 
 function ColorsDropdown() {
   const { state, dispatch } = useThemingStore();
-  const [openToken, setOpenToken] = useState<PaletteKey | null>(null);
-
   const modeTokens = state.activeMode === "light" ? state.light : state.dark;
-
-  const commit = useCallback(
-    (oklch: string) => {
-      if (!openToken) return;
-      dispatch({
-        type: "SET_SIMPLE",
-        key: openToken as keyof SimpleTokens,
-        value: oklch,
-      });
-    },
-    [openToken, dispatch],
-  );
-
-  const committedOklch = modeTokens[openToken as ShadcnToken]?.value ?? "";
 
   return (
     <Popover>
@@ -139,42 +92,41 @@ function ColorsDropdown() {
         side="top"
         align="center"
         sideOffset={10}
-        className="w-auto p-2 rounded-2xl bg-card/90 backdrop-blur-xl border border-border shadow-xl"
+        className="w-auto p-3 rounded-2xl bg-card/90 backdrop-blur-xl border border-border shadow-xl"
       >
-        <div className="flex items-center gap-1.5">
+        <div className="flex flex-col gap-2">
           {toolbarItems.colors.map((item) => {
-            const hex = oklchToHex(
-              modeTokens[item.color as ShadcnToken]?.value ?? "",
-            );
-            const isActive = openToken === item.color;
+            const committedOklch = modeTokens[item.color as ShadcnToken]?.value ?? "";
             return (
-              <button
-                key={item.color}
-                onClick={() =>
-                  setOpenToken(isActive ? null : (item.color as PaletteKey))
-                }
-                className={cn(
-                  "flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-150 cursor-pointer outline-none hover:bg-muted/60",
-                  isActive && "bg-muted ring-1 ring-border",
-                )}
-              >
-                <div
-                  className="w-6 h-6 rounded-full border-2 border-border shadow-sm"
-                  style={{ backgroundColor: hex }}
-                />
-                <span className="text-[10px] font-medium text-muted-foreground leading-none">
+              <div key={item.color} className="flex items-center gap-3">
+                <span className="text-[11px] font-medium text-muted-foreground w-20 shrink-0">
                   {item.name}
                 </span>
-              </button>
+                <ColorPicker
+                  value={committedOklch}
+                  onCommit={(oklch) =>
+                    dispatch({
+                      type: "SET_SIMPLE",
+                      key: item.color as keyof SimpleTokens,
+                      value: oklch,
+                    })
+                  }
+                  onPreview={(oklch) => {
+                    const freshTokens = deriveShadcnTokens(
+                      { ...state.simple, [item.color]: oklch },
+                      state.activeMode,
+                    );
+                    const root = document.documentElement;
+                    for (const t of Object.keys(freshTokens) as ShadcnToken[]) {
+                      root.style.setProperty(`--${t}`, freshTokens[t].value);
+                    }
+                  }}
+                  showTailwindPalette={false}
+                />
+              </div>
             );
           })}
         </div>
-
-        {openToken && (
-          <div className="mt-2">
-            <ColorPickerPopover value={committedOklch} onCommit={commit} />
-          </div>
-        )}
       </PopoverContent>
     </Popover>
   );
