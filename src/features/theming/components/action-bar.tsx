@@ -16,6 +16,7 @@ import {
   Check,
   Copy,
   Dices,
+  Download,
   Redo2,
   RotateCcw,
   Undo2,
@@ -167,38 +168,44 @@ export function ActionBar() {
       <ModeToggle />
 
       {/* Secondary row: themes, import, random, contrast, export */}
-      <div className="flex flex-wrap items-center gap-1.5">
-        <ThemeSelector onExportTheme={() => {}} />
+      <div className="flex flex-col gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <ThemeSelector onExportTheme={() => {}} />
 
-        <IconTextBtn
-          onClick={() => setShowImport(true)}
-          icon={<Upload className="size-3" />}
-        >
-          Import
-        </IconTextBtn>
+          <IconTextBtn
+            onClick={handleRandom}
+            icon={<Dices className="size-3" />}
+          >
+            Random
+          </IconTextBtn>
 
-        <IconTextBtn onClick={handleRandom} icon={<Dices className="size-3" />}>
-          Random
-        </IconTextBtn>
+          <button
+            onClick={() => setShowContrast(true)}
+            className="relative flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+          >
+            Contrast
+            {failCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-4 h-4 rounded-full bg-destructive text-[9px] font-bold text-white">
+                {failCount}
+              </span>
+            )}
+          </button>
+        </div>
 
-        <button
-          onClick={() => setShowContrast(true)}
-          className="relative flex items-center gap-1 rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-        >
-          Contrast
-          {failCount > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center w-4 h-4 rounded-full bg-destructive text-[9px] font-bold text-white">
-              {failCount}
-            </span>
-          )}
-        </button>
-
-        <button
-          onClick={() => setShowExport(true)}
-          className="rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-        >
-          Export
-        </button>
+        <div className="flex items-center gap-1.5">
+          <IconTextBtn
+            onClick={() => setShowExport(true)}
+            icon={<Download className="size-3" />}
+          >
+            Export
+          </IconTextBtn>
+          <IconTextBtn
+            onClick={() => setShowImport(true)}
+            icon={<Upload className="size-3" />}
+          >
+            Import
+          </IconTextBtn>
+        </div>
       </div>
 
       {/* Save row */}

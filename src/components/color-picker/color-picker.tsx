@@ -19,14 +19,43 @@ function hsvToHex(h: number, s: number, v: number): string {
   const t = v * (1 - (1 - f) * s);
   let r: number, g: number, b: number;
   switch (i % 6) {
-    case 0: r = v; g = t; b = p; break;
-    case 1: r = q; g = v; b = p; break;
-    case 2: r = p; g = v; b = t; break;
-    case 3: r = p; g = q; b = v; break;
-    case 4: r = t; g = p; b = v; break;
-    default: r = v; g = p; b = q;
+    case 0:
+      r = v;
+      g = t;
+      b = p;
+      break;
+    case 1:
+      r = q;
+      g = v;
+      b = p;
+      break;
+    case 2:
+      r = p;
+      g = v;
+      b = t;
+      break;
+    case 3:
+      r = p;
+      g = q;
+      b = v;
+      break;
+    case 4:
+      r = t;
+      g = p;
+      b = v;
+      break;
+    default:
+      r = v;
+      g = p;
+      b = q;
   }
-  return `#${Math.round(r * 255).toString(16).padStart(2, "0")}${Math.round(g * 255).toString(16).padStart(2, "0")}${Math.round(b * 255).toString(16).padStart(2, "0")}`;
+  return `#${Math.round(r * 255)
+    .toString(16)
+    .padStart(2, "0")}${Math.round(g * 255)
+    .toString(16)
+    .padStart(2, "0")}${Math.round(b * 255)
+    .toString(16)
+    .padStart(2, "0")}`;
 }
 
 function hexToHsv(hex: string): { h: number; s: number; v: number } {
@@ -34,7 +63,9 @@ function hexToHsv(hex: string): { h: number; s: number; v: number } {
   const r = parseInt(h.slice(0, 2), 16) / 255;
   const g = parseInt(h.slice(2, 4), 16) / 255;
   const b = parseInt(h.slice(4, 6), 16) / 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b),
+    d = max - min;
   let hue = 0;
   if (d !== 0) {
     if (max === r) hue = ((g - b) / d) % 6;
@@ -60,7 +91,8 @@ function getContrastRatio(hex1: string, hex2: string): number {
       })
       .reduce((acc, v, i) => acc + v * [0.2126, 0.7152, 0.0722][i], 0);
   };
-  const l1 = lum(hex1), l2 = lum(hex2);
+  const l1 = lum(hex1),
+    l2 = lum(hex2);
   return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
 }
 
@@ -69,7 +101,11 @@ function parseInitial(color: string) {
   return { h: 0, s: 0, v: 1 };
 }
 
-export default function ColorPicker({ initialColor, onColorChange, contrastWith }: ColorPickerProps) {
+export default function ColorPicker({
+  initialColor,
+  onColorChange,
+  contrastWith,
+}: ColorPickerProps) {
   // Derive initial HSV from the prop so the picker opens in the right position.
   const init = parseInitial(initialColor);
 
@@ -122,26 +158,32 @@ export default function ColorPicker({ initialColor, onColorChange, contrastWith 
     onColorChangeRef.current?.(color);
   }, []);
 
-  const updateFromGradient = useCallback((e: MouseEvent | React.MouseEvent) => {
-    if (!gradientRef.current) return;
-    const rect = gradientRef.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
-    setPosition({ x, y });
-    positionRef.current = { x, y };
-    emitColor(hsvToHex(hueRef.current, x, 1 - y));
-  }, [emitColor]);
+  const updateFromGradient = useCallback(
+    (e: MouseEvent | React.MouseEvent) => {
+      if (!gradientRef.current) return;
+      const rect = gradientRef.current.getBoundingClientRect();
+      const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+      setPosition({ x, y });
+      positionRef.current = { x, y };
+      emitColor(hsvToHex(hueRef.current, x, 1 - y));
+    },
+    [emitColor],
+  );
 
-  const updateFromHue = useCallback((e: MouseEvent | React.MouseEvent) => {
-    if (!hueSliderRef.current) return;
-    const rect = hueSliderRef.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const newHue = Math.round(x * 360);
-    setHue(newHue);
-    hueRef.current = newHue;
-    const { x: px, y: py } = positionRef.current;
-    emitColor(hsvToHex(newHue, px, 1 - py));
-  }, [emitColor]);
+  const updateFromHue = useCallback(
+    (e: MouseEvent | React.MouseEvent) => {
+      if (!hueSliderRef.current) return;
+      const rect = hueSliderRef.current.getBoundingClientRect();
+      const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      const newHue = Math.round(x * 360);
+      setHue(newHue);
+      hueRef.current = newHue;
+      const { x: px, y: py } = positionRef.current;
+      emitColor(hsvToHex(newHue, px, 1 - py));
+    },
+    [emitColor],
+  );
 
   useEffect(() => {
     if (!dragging) return;
@@ -201,7 +243,7 @@ export default function ColorPicker({ initialColor, onColorChange, contrastWith 
       : null;
 
   return (
-    <div className="flex flex-col w-52 rounded-xl overflow-hidden border border-border bg-card shadow-lg">
+    <div className="flex flex-col md:w-52 w-full  rounded-xl overflow-hidden border border-border bg-card shadow-lg">
       {/* HSV gradient square */}
       <div
         ref={gradientRef}
@@ -296,11 +338,15 @@ export default function ColorPicker({ initialColor, onColorChange, contrastWith 
                 contrastRatio >= 7
                   ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                   : contrastRatio >= 4.5
-                  ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-                  : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+                    ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                    : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
               )}
             >
-              {contrastRatio >= 7 ? "AAA" : contrastRatio >= 4.5 ? "AA" : "Fail"}
+              {contrastRatio >= 7
+                ? "AAA"
+                : contrastRatio >= 4.5
+                  ? "AA"
+                  : "Fail"}
             </span>
           </div>
         )}

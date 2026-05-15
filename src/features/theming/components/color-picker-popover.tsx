@@ -31,7 +31,13 @@ export function ColorPickerPopover({
   return (
     <div className="flex flex-col items-end gap-1">
       {/* Flush the deferred commit when the pointer is released anywhere inside the picker. */}
-      <div onPointerUp={flushHex} onPointerCancel={flushHex}>
+      <div
+        onPointerUp={() => {
+          requestAnimationFrame(flushHex);
+        }}
+        onPointerCancel={flushHex}
+        className="md:w-auto w-full"
+      >
         <ColorPicker initialColor={draftHex} onColorChange={setDraftHex} />
       </div>
       {/* TailwindPicker is outside the flush wrapper so its click doesn't trigger a

@@ -74,7 +74,9 @@ export function Toolbar() {
         <FontPicker />
         <PresetPicker />
         <PaletteExport />
-        <ThemeToggle />
+        <div className="sm:flex hidden">
+          <ThemeToggle />
+        </div>
 
         <div className="w-px h-6 bg-border mx-0.5" />
         <button
@@ -118,9 +120,7 @@ function ColorsDropdown() {
     [openToken, dispatch],
   );
 
-  const currentValue = openToken
-    ? (modeTokens[openToken as ShadcnToken]?.value ?? "")
-    : "";
+  const committedOklch = modeTokens[openToken as ShadcnToken]?.value ?? "";
 
   return (
     <Popover>
@@ -172,11 +172,7 @@ function ColorsDropdown() {
 
         {openToken && (
           <div className="mt-2">
-            <ColorPickerPopover
-              key={openToken}
-              value={currentValue}
-              onCommit={commit}
-            />
+            <ColorPickerPopover value={committedOklch} onCommit={commit} />
           </div>
         )}
       </PopoverContent>
