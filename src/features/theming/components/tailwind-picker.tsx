@@ -1,11 +1,19 @@
 "use client";
 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Palette } from "lucide-react";
 import { useMemo, useState } from "react";
-import { TAILWIND_COLORS, TAILWIND_FAMILIES, TAILWIND_SHADES } from "../lib/tailwind-colors";
 import { toOklch } from "../lib/oklch";
+import {
+  TAILWIND_COLORS,
+  TAILWIND_FAMILIES,
+  TAILWIND_SHADES,
+} from "../lib/tailwind-colors";
 
 interface TailwindPickerProps {
   onSelect: (value: string) => void;
@@ -37,7 +45,7 @@ export function TailwindPicker({ onSelect }: TailwindPickerProps) {
           <Palette className="size-3.5" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-3" align="end" sideOffset={6}>
+      <PopoverContent className="w-80 p-3" align="start" sideOffset={6}>
         <div className="flex flex-col gap-2">
           <input
             autoFocus
@@ -49,7 +57,9 @@ export function TailwindPicker({ onSelect }: TailwindPickerProps) {
           <div className="max-h-72 overflow-y-auto flex flex-col gap-1">
             {families.map((family) => (
               <div key={family} className="flex items-center gap-1.5">
-                <span className="w-14 shrink-0 text-[10px] text-muted-foreground capitalize">{family}</span>
+                <span className="w-14 shrink-0 text-[12px] text-muted-foreground capitalize">
+                  {family}
+                </span>
                 <div className="flex gap-0.5">
                   {TAILWIND_SHADES.map((shade) => {
                     const hex = TAILWIND_COLORS[family][shade];
@@ -59,7 +69,7 @@ export function TailwindPicker({ onSelect }: TailwindPickerProps) {
                         title={`${family}-${shade}: ${hex}`}
                         onClick={() => handleSelect(hex)}
                         className={cn(
-                          "w-4 h-4 rounded-sm border border-border/40 transition-transform hover:scale-125 hover:z-10 hover:shadow-sm"
+                          "w-8 h-8 rounded-sm border border-border/40 transition-transform hover:scale-125 hover:z-10 hover:shadow-sm",
                         )}
                         style={{ backgroundColor: hex }}
                       />
@@ -69,7 +79,9 @@ export function TailwindPicker({ onSelect }: TailwindPickerProps) {
               </div>
             ))}
             {families.length === 0 && (
-              <p className="text-xs text-muted-foreground text-center py-4">No results</p>
+              <p className="text-xs text-muted-foreground text-center py-4">
+                No results
+              </p>
             )}
           </div>
         </div>
