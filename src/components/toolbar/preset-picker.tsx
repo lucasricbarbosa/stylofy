@@ -1,11 +1,8 @@
 "use client";
 
-import {
-  PALETTE_PRESETS,
-  type PalettePreset,
-  useThemeColors,
-} from "@/components/theme/theme-context";
-import { useTheme } from "next-themes";
+import { BUILT_IN_PRESETS } from "@/features/theming/lib/presets";
+import { useThemingStore } from "@/features/theming/store";
+import type { BuiltInPreset } from "@/features/theming/types";
 import { Sparkles } from "lucide-react";
 import {
   DropdownMenu,
@@ -14,14 +11,13 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-function PresetSwatch({ preset, isDark }: { preset: PalettePreset; isDark: boolean }) {
-  const palette = isDark ? preset.dark : preset.light;
+function PresetSwatch({ preset }: { preset: BuiltInPreset }) {
   const bars = [
-    palette.background,
-    palette.foreground,
-    palette.primary,
-    palette.secondary,
-    palette.accent,
+    preset.simple.background,
+    preset.simple.foreground,
+    preset.simple.primary,
+    preset.simple.secondary,
+    preset.simple.accent,
   ];
 
   return (
@@ -34,9 +30,8 @@ function PresetSwatch({ preset, isDark }: { preset: PalettePreset; isDark: boole
 }
 
 export function PresetPicker() {
-  const { applyPreset } = useThemeColors();
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
+  const { dispatch } = useThemingStore();
+  const simplePresets = BUILT_IN_PRESETS.filter((p) => p.level === "simple");
 
   return (
     <DropdownMenu>
@@ -52,14 +47,14 @@ export function PresetPicker() {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="center" sideOffset={8} className="min-w-[200px]">
-        {PALETTE_PRESETS.map((preset) => (
+        {simplePresets.map((preset) => (
           <DropdownMenuItem
             key={preset.name}
-            onClick={() => applyPreset(preset)}
+            onClick={() => dispatch({ type: "APPLY_PRESET", preset })}
             className="flex items-center justify-between gap-3 cursor-pointer"
           >
             <span className="text-sm">{preset.name}</span>
-            <PresetSwatch preset={preset} isDark={isDark} />
+            <PresetSwatch preset={preset} />
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

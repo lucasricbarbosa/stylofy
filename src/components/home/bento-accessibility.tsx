@@ -1,6 +1,6 @@
 "use client";
 
-import { useThemeColors } from "@/components/theme/theme-context";
+import { useThemingStore } from "@/features/theming/store";
 import { oklchToHex } from "@/utils/colors";
 
 function relLum(hex: string): number {
@@ -28,15 +28,16 @@ function rating(ratio: number): { label: string; cls: string } {
 }
 
 export function BentoAccessibility() {
-  const { colors } = useThemeColors();
+  const { state } = useThemingStore();
+  const simple = state.simple;
 
   const pairs = [
-    { id: "fg/bg", a: colors.foreground, b: colors.background },
-    { id: "primary/bg", a: colors.primary, b: colors.background },
-    { id: "accent/fg", a: colors.accent, b: colors.foreground },
+    { id: "fg/bg", a: simple.foreground, b: simple.background },
+    { id: "primary/bg", a: simple.primary, b: simple.background },
+    { id: "accent/fg", a: simple.accent, b: simple.foreground },
   ];
 
-  const overallRatio = wcagContrast(colors.foreground, colors.background);
+  const overallRatio = wcagContrast(simple.foreground, simple.background);
   const overall = rating(overallRatio);
 
   return (

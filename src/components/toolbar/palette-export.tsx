@@ -1,6 +1,6 @@
 "use client";
 
-import { useThemeColors } from "@/components/theme/theme-context";
+import { useThemingStore } from "@/features/theming/store";
 import { oklchToHex } from "@/utils/colors";
 import { Check, Download } from "lucide-react";
 import { useState } from "react";
@@ -12,25 +12,26 @@ import {
 } from "../ui/dropdown-menu";
 
 export function PaletteExport() {
-  const { colors } = useThemeColors();
+  const { state } = useThemingStore();
   const [copied, setCopied] = useState(false);
 
   const toHex = (v: string) => oklchToHex(v);
+  const s = state.simple;
 
   const getCSSVars = () =>
-    `:root {\n  --color-text: ${toHex(colors.foreground)};\n  --color-background: ${toHex(colors.background)};\n  --color-primary: ${toHex(colors.primary)};\n  --color-secondary: ${toHex(colors.secondary)};\n  --color-accent: ${toHex(colors.accent)};\n}`;
+    `:root {\n  --color-text: ${toHex(s.foreground)};\n  --color-background: ${toHex(s.background)};\n  --color-primary: ${toHex(s.primary)};\n  --color-secondary: ${toHex(s.secondary)};\n  --color-accent: ${toHex(s.accent)};\n}`;
 
   const getTailwindConfig = () =>
-    `colors: {\n  text: "${toHex(colors.foreground)}",\n  background: "${toHex(colors.background)}",\n  primary: "${toHex(colors.primary)}",\n  secondary: "${toHex(colors.secondary)}",\n  accent: "${toHex(colors.accent)}",\n}`;
+    `colors: {\n  text: "${toHex(s.foreground)}",\n  background: "${toHex(s.background)}",\n  primary: "${toHex(s.primary)}",\n  secondary: "${toHex(s.secondary)}",\n  accent: "${toHex(s.accent)}",\n}`;
 
   const getJSON = () =>
     JSON.stringify(
       {
-        text: toHex(colors.foreground),
-        background: toHex(colors.background),
-        primary: toHex(colors.primary),
-        secondary: toHex(colors.secondary),
-        accent: toHex(colors.accent),
+        text: toHex(s.foreground),
+        background: toHex(s.background),
+        primary: toHex(s.primary),
+        secondary: toHex(s.secondary),
+        accent: toHex(s.accent),
       },
       null,
       2,

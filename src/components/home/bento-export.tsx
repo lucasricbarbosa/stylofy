@@ -1,6 +1,8 @@
 "use client";
 
-import { type Palette, type PaletteKey, useThemeColors } from "@/components/theme/theme-context";
+import { useThemingStore } from "@/features/theming/store";
+import type { SimpleTokens } from "@/features/theming/types";
+import type { PaletteKey } from "@/components/theme/theme-context";
 import { useState } from "react";
 
 type Fmt = "css" | "tailwind" | "json";
@@ -13,7 +15,7 @@ const TOKENS: { key: PaletteKey; label: string }[] = [
   { key: "accent",     label: "--accent     " },
 ];
 
-function buildText(fmt: Fmt, colors: Palette): string {
+function buildText(fmt: Fmt, colors: SimpleTokens): string {
   if (fmt === "css") {
     const lines = TOKENS.map(({ key, label }) => `  ${label}: ${colors[key]};`);
     return `:root {\n${lines.join("\n")}\n}`;
@@ -29,7 +31,8 @@ function buildText(fmt: Fmt, colors: Palette): string {
 export function BentoExport() {
   const [fmt, setFmt] = useState<Fmt>("css");
   const [copied, setCopied] = useState(false);
-  const { colors } = useThemeColors();
+  const { state } = useThemingStore();
+  const colors = state.simple;
 
   async function copy() {
     try {
@@ -82,7 +85,7 @@ export function BentoExport() {
   );
 }
 
-function CodeView({ fmt, colors }: { fmt: Fmt; colors: Palette }) {
+function CodeView({ fmt, colors }: { fmt: Fmt; colors: SimpleTokens }) {
   if (fmt === "css") {
     return (
       <>

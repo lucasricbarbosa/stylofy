@@ -1,19 +1,18 @@
 "use client";
 
-import ColorPicker from "@/components/color-picker/color-picker";
-import { useThemeColors } from "@/components/theme/theme-context";
 import type { PaletteKey } from "@/components/theme/theme-context";
+import { useThemeColors } from "@/components/theme/theme-context";
+import { ColorPickerPopover } from "@/features/theming/components/color-picker-popover";
+import { ThemingDrawer } from "@/features/theming/components/theming-drawer";
+import { useThemingStore } from "@/features/theming/store";
+import type { ShadcnToken, SimpleTokens } from "@/features/theming/types";
 import { cn } from "@/lib/utils";
 import { oklchToHex } from "@/utils/colors";
 import { toolbarItems } from "@/utils/toolbar-items";
-import { Palette } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Paintbrush, Palette } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { ThemeToggle } from "../theme/theme-toggle";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { ColorPickerItem } from "./color-picker-item";
 import { FontPicker } from "./font-picker";
 import { PaletteExport } from "./palette-export";
@@ -29,10 +28,15 @@ const SHORTCUT_MAP: Record<string, string> = {
 
 export function Toolbar() {
   const { setActiveToken } = useThemeColors();
+  const [isThemingOpen, setIsThemingOpen] = useState(false);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      )
+        return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const token = SHORTCUT_MAP[e.key.toLowerCase()];
       if (token) {
@@ -49,7 +53,6 @@ export function Toolbar() {
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
       <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-card/80 backdrop-blur-xl border border-border shadow-xl shadow-black/10 dark:shadow-black/40">
-
         {/* Desktop: inline color pickers */}
         <div className="hidden md:flex items-center gap-1.5">
           {toolbarItems.colors.map((item) => (
@@ -72,25 +75,52 @@ export function Toolbar() {
         <PresetPicker />
         <PaletteExport />
         <ThemeToggle />
+
+        <div className="w-px h-6 bg-border mx-0.5" />
+        <button
+          onClick={() => setIsThemingOpen((prev) => !prev)}
+          className={cn(
+            "flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-150 cursor-pointer outline-none hover:bg-muted/60",
+            isThemingOpen && "bg-muted ring-1 ring-border",
+          )}
+          aria-label="Open theme editor"
+        >
+          <Paintbrush className="w-4 h-4 text-muted-foreground" />
+          <span className="text-[10px] font-medium text-muted-foreground leading-none">
+            Theme
+          </span>
+        </button>
       </div>
+
+      <ThemingDrawer
+        open={isThemingOpen}
+        onClose={() => setIsThemingOpen(false)}
+      />
     </div>
   );
 }
 
 function ColorsDropdown() {
-  const { colors, updateColor, isReady } = useThemeColors();
+  const { state, dispatch } = useThemingStore();
   const [openToken, setOpenToken] = useState<PaletteKey | null>(null);
 
-  const currentHex = openToken ? oklchToHex(colors[openToken]) : "#000000";
-  const contrastPartner =
-    openToken === "foreground"
-      ? colors["background"]
-      : openToken === "background"
-      ? colors["foreground"]
-      : openToken === "primary"
-      ? colors["background"]
-      : null;
-  const contrastHex = contrastPartner ? oklchToHex(contrastPartner) : undefined;
+  const modeTokens = state.activeMode === "light" ? state.light : state.dark;
+
+  const commit = useCallback(
+    (oklch: string) => {
+      if (!openToken) return;
+      dispatch({
+        type: "SET_SIMPLE",
+        key: openToken as keyof SimpleTokens,
+        value: oklch,
+      });
+    },
+    [openToken, dispatch],
+  );
+
+  const currentValue = openToken
+    ? (modeTokens[openToken as ShadcnToken]?.value ?? "")
+    : "";
 
   return (
     <Popover>
@@ -111,10 +141,11 @@ function ColorsDropdown() {
         sideOffset={10}
         className="w-auto p-2 rounded-2xl bg-card/90 backdrop-blur-xl border border-border shadow-xl"
       >
-        {/* Swatch row — tapping a swatch expands the picker inline (no nested portal) */}
         <div className="flex items-center gap-1.5">
           {toolbarItems.colors.map((item) => {
-            const hex = oklchToHex(colors[item.color as PaletteKey]);
+            const hex = oklchToHex(
+              modeTokens[item.color as ShadcnToken]?.value ?? "",
+            );
             const isActive = openToken === item.color;
             return (
               <button
@@ -122,11 +153,9 @@ function ColorsDropdown() {
                 onClick={() =>
                   setOpenToken(isActive ? null : (item.color as PaletteKey))
                 }
-                disabled={!isReady}
                 className={cn(
                   "flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-150 cursor-pointer outline-none hover:bg-muted/60",
                   isActive && "bg-muted ring-1 ring-border",
-                  !isReady && "opacity-40 pointer-events-none",
                 )}
               >
                 <div
@@ -141,14 +170,12 @@ function ColorsDropdown() {
           })}
         </div>
 
-        {/* Inline color picker — no portal, so the Popover never sees an outside click */}
-        {openToken && isReady && (
+        {openToken && (
           <div className="mt-2">
-            <ColorPicker
-              key={`mobile-${openToken}`}
-              initialColor={currentHex}
-              onColorChange={(val) => updateColor(openToken, val)}
-              contrastWith={contrastHex}
+            <ColorPickerPopover
+              key={openToken}
+              value={currentValue}
+              onCommit={commit}
             />
           </div>
         )}

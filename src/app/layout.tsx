@@ -1,5 +1,6 @@
 import { ThemeColorsProvider } from "@/components/theme/theme-context";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { ThemingStoreProvider } from "@/features/theming/store";
 import type { Metadata } from "next";
 import { Instrument_Serif, Inter } from "next/font/google";
 import "./globals.css";
@@ -39,7 +40,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ThemeColorsProvider>{children}</ThemeColorsProvider>
+          <ThemingStoreProvider>
+            <ThemeColorsProvider>{children}</ThemeColorsProvider>
+          </ThemingStoreProvider>
         </ThemeProvider>
       </body>
     </html>
