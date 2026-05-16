@@ -8,6 +8,7 @@ import React, {
   useEffect,
   useReducer,
 } from "react";
+import { injectFontFamilyString } from "@/utils/fonts";
 import { LocalThemesProvider } from "./hooks/useLocalThemes";
 import { SHADCN_DARK_DEFAULTS, SHADCN_LIGHT_DEFAULTS } from "./lib/defaults";
 import { deriveShadcnTokens } from "./lib/derive-shadcn";
@@ -85,7 +86,8 @@ type Action =
   | { type: "APPLY_PRESET"; preset: BuiltInPreset }
   | { type: "UNDO" }
   | { type: "REDO" }
-  | { type: "SET_RADIUS"; value: string };
+  | { type: "SET_RADIUS"; value: string }
+  | { type: "SET_FONT_FAMILY"; sans: string; mono: string };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -276,6 +278,16 @@ function reducer(state: ThemeState, action: Action): ThemeState {
       };
     }
 
+    case "SET_FONT_FAMILY": {
+      const sansToken = { value: action.sans, source: "override" as const };
+      const monoToken = { value: action.mono, source: "override" as const };
+      return {
+        ...state,
+        light: { ...state.light, "font-sans": sansToken, "font-mono": monoToken },
+        dark: { ...state.dark, "font-sans": sansToken, "font-mono": monoToken },
+      };
+    }
+
     default:
       return state;
   }
@@ -339,7 +351,11 @@ export function ThemingStoreProvider({
     const tokens = isDark ? state.dark : state.light;
     const root = document.documentElement;
     for (const token of Object.keys(tokens) as ShadcnToken[]) {
-      root.style.setProperty(`--${token}`, tokens[token].value);
+      const value = tokens[token].value;
+      root.style.setProperty(`--${token}`, value);
+      if (token === "font-sans" || token === "font-mono") {
+        injectFontFamilyString(value);
+      }
     }
   }, [state.light, state.dark, resolvedTheme]);
 

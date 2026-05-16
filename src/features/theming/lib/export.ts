@@ -2,11 +2,11 @@ import type { ExportFormat, ShadcnToken, TokenValues } from "../types";
 import { SHADCN_TOKENS } from "../types";
 import { convertColor, toOklch } from "./oklch";
 
-// Radius is a length value, not a color — never convert it.
-const RADIUS_TOKEN: ShadcnToken = "radius";
+// Tokens that are not colors and must never be run through color conversion.
+const NON_COLOR_TOKENS = new Set<ShadcnToken>(["radius", "font-sans", "font-mono"]);
 
 function formatValue(value: string, format: ExportFormat, token: ShadcnToken): string {
-  if (token === RADIUS_TOKEN) return value;
+  if (NON_COLOR_TOKENS.has(token)) return value;
   if (!value || value.trim() === "") return value;
   return convertColor(value, format);
 }

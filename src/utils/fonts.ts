@@ -108,13 +108,42 @@ export function injectFont(font: FontDefinition): void {
   loadedFonts.add(font.slug);
 }
 
+const GENERIC_FONTS = new Set([
+  "system-ui", "sans-serif", "serif", "monospace",
+  "ui-monospace", "ui-sans-serif", "ui-serif", "ui-rounded",
+  "inherit", "initial", "unset", "revert",
+]);
+
+/** Inject a Google Font given a raw CSS font-family string like "'IBM Plex Mono', monospace". */
+export function injectFontFamilyString(fontFamily: string): void {
+  if (!fontFamily || fontFamily.startsWith("var(")) return;
+  const firstFont = fontFamily.split(",")[0].trim().replace(/['"]/g, "").trim();
+  if (!firstFont || GENERIC_FONTS.has(firstFont.toLowerCase())) return;
+
+  // Reuse existing FONTS entries when possible (they have curated URLs).
+  const known = FONTS.find((f) => f.slug === firstFont);
+  if (known) { injectFont(known); return; }
+
+  if (loadedFonts.has(firstFont)) return;
+  loadedFonts.add(firstFont);
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = `https://fonts.googleapis.com/css2?family=${firstFont.replace(/ /g, "+")}:wght@400;500;600;700&display=swap`;
+  document.head.appendChild(link);
+}
+
 export function applyFont(slug: string): void {
   const font = FONTS.find((f) => f.slug === slug) ?? FONTS[0];
   if (font.googleUrl) injectFont(font);
+  const root = document.documentElement;
+  // Set --font-sans and --font-mono directly so the change is immediate
+  // even when a preset previously set them as inline styles.
+  root.style.setProperty("--font-sans", font.family);
+  root.style.setProperty("--font-mono", font.family);
+  // Keep --font-user for the CSS fallback chain in globals.css
   if (slug === "Inter") {
-    // Remove the override so --font-sans falls back to var(--font-inter).
-    document.documentElement.style.removeProperty("--font-user");
+    root.style.removeProperty("--font-user");
   } else {
-    document.documentElement.style.setProperty("--font-user", font.family);
+    root.style.setProperty("--font-user", font.family);
   }
 }

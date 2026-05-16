@@ -31,6 +31,8 @@ export const SHADCN_TOKENS = [
   "sidebar-accent-foreground",
   "sidebar-border",
   "sidebar-ring",
+  "font-sans",
+  "font-mono",
 ] as const;
 
 export type ShadcnToken = (typeof SHADCN_TOKENS)[number];

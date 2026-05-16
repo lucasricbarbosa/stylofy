@@ -1,5 +1,6 @@
 import { BentoGrid } from "@/components/home/bento-grid";
 import { CTASection } from "@/components/home/cta-section";
+import { FeaturesSection } from "@/components/home/features-section";
 import { Hero } from "@/components/home/hero";
 import { TemplatesSection } from "@/components/home/templates-section";
 
@@ -9,6 +10,7 @@ export default function Home() {
       <Hero />
       <BentoGrid />
       <TemplatesSection />
+      <FeaturesSection />
       <CTASection />
     </>
   );

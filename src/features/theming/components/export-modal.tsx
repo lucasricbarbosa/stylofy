@@ -29,7 +29,7 @@ const FORMATS: { value: ExportFormat; label: string }[] = [
 function modeThemeToTokenValues(mt: ModeTheme): TokenValues {
   const result: Partial<TokenValues> = {};
   for (const t of SHADCN_TOKENS) {
-    result[t] = mt[t].value;
+    result[t] = mt[t]?.value ?? "";
   }
   return result as TokenValues;
 }

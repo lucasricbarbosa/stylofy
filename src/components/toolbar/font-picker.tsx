@@ -1,6 +1,7 @@
 "use client";
 
 import { useThemeColors } from "@/components/theme/theme-context";
+import { useThemingStore } from "@/features/theming/store";
 import { FONTS, injectFont } from "@/utils/fonts";
 import { useRef } from "react";
 import {
@@ -12,6 +13,7 @@ import {
 
 export function FontPicker() {
   const { font, updateFont } = useThemeColors();
+  const { dispatch } = useThemingStore();
   const hasPreloadedRef = useRef(false);
   const currentFont = FONTS.find((f) => f.slug === font) ?? FONTS[0];
 
@@ -49,7 +51,10 @@ export function FontPicker() {
         {FONTS.map((f) => (
           <DropdownMenuItem
             key={f.slug}
-            onClick={() => updateFont(f.slug)}
+            onClick={() => {
+                updateFont(f.slug);
+                dispatch({ type: "SET_FONT_FAMILY", sans: f.family, mono: f.family });
+              }}
             className="flex group items-center justify-between gap-3 cursor-pointer"
           >
             <span

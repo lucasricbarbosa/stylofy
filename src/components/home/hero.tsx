@@ -1,3 +1,4 @@
+import { AnimatedGradientText } from "@/components/ui/animated-gradient-text";
 import Link from "next/link";
 
 export function Hero() {
@@ -19,7 +20,19 @@ export function Hero() {
       >
         Color systems,
         <br />
-        <em className="hero-gradient-em">alive.</em>
+        <em>
+          <AnimatedGradientText
+            text="alive."
+            className="font-serif font-normal tracking-[-0.045em] pr-[0.08em]"
+            colors={[
+              "var(--primary)",
+              "var(--accent)",
+              "var(--accent)",
+              "var(--primary)",
+            ]}
+            animationSpeed="slow"
+          />
+        </em>
       </h1>
 
       {/* Subtitle */}

@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   title: "Stylofy Colors — Visualize Your Palette Live",
   description:
     "Pick colors and see them applied to real UI components instantly. Export to CSS, Tailwind, or JSON.",
+  icons: { icon: "/favicon.ico" },
 };
 
 export default function RootLayout({

@@ -33,6 +33,8 @@ export const SHADCN_LIGHT_DEFAULTS: TokenValues = {
   "sidebar-accent-foreground": "oklch(0.205 0 0)",
   "sidebar-border": "oklch(0.922 0 0)",
   "sidebar-ring": "oklch(0.708 0 0)",
+  "font-sans": "var(--font-user, var(--font-inter))",
+  "font-mono": "var(--font-user, var(--font-inter))",
 };
 
 export const SHADCN_DARK_DEFAULTS: TokenValues = {
@@ -68,4 +70,6 @@ export const SHADCN_DARK_DEFAULTS: TokenValues = {
   "sidebar-accent-foreground": "oklch(0.985 0 0)",
   "sidebar-border": "oklch(1 0 0 / 10%)",
   "sidebar-ring": "oklch(0.556 0 0)",
+  "font-sans": "var(--font-user, var(--font-inter))",
+  "font-mono": "var(--font-user, var(--font-inter))",
 };
