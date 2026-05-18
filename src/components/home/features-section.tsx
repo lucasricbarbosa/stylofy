@@ -730,7 +730,7 @@ export function FeaturesSection() {
   return (
     <section
       id="features"
-      className="relative z-[2] my-32 py-32"
+      className="relative  z-[2] my-32 py-32"
       style={
         {
           background: "var(--muted)",
@@ -739,7 +739,7 @@ export function FeaturesSection() {
       }
     >
       {/* Top hairline */}
-      <div className="mx-auto max-w-[1200px]">
+      <div className="mx-auto max-w-[1200px] px-10 max-md:px-6">
         <div
           className="absolute left-0 right-0 top-0 h-px pointer-events-none"
           style={{
@@ -759,24 +759,6 @@ export function FeaturesSection() {
         <div className="mx-auto max-w-[1200px] relative">
           {/* Header */}
           <div className="text-center flex flex-col items-center gap-[22px] mb-16">
-            <span className="relative inline-block font-serif italic text-[18px] text-foreground pb-1">
-              Basic Features
-              <svg
-                viewBox="0 0 120 8"
-                className="block w-[110px] h-[7px] mx-auto mt-1"
-                style={{ color: FX_VIOLET, opacity: 0.9 }}
-                aria-hidden
-              >
-                <path
-                  d="M2 5 Q 30 0, 60 4 T 118 3"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </span>
-
             <h2
               className="font-medium m-0 text-center text-foreground"
               style={
@@ -791,7 +773,7 @@ export function FeaturesSection() {
             >
               Build your color system{" "}
               <em
-                className="relative not-italic font-serif"
+                className="relative not-italic font-serif h-fit hero-gradient-em"
                 style={{
                   fontStyle: "italic",
                   fontWeight: 400,
@@ -799,18 +781,8 @@ export function FeaturesSection() {
                 }}
               >
                 effortlessly
-                <span
-                  className="absolute left-0 right-0 -z-10 rounded-sm"
-                  style={{
-                    bottom: "4px",
-                    height: "10px",
-                    background: FX_VIOLET,
-                    opacity: 0.35,
-                  }}
-                />
               </em>
               <br />
-              with tokens, presets and live preview.
             </h2>
 
             <p
@@ -821,30 +793,10 @@ export function FeaturesSection() {
               in OKLCH, preview on real components, and ship the CSS when it
               feels right.
             </p>
-
-            <span
-              className="inline-flex items-center gap-2 px-3 py-[5px] rounded-full border border-border font-mono text-[11px] text-muted-foreground tracking-[0.02em]"
-              style={{
-                background:
-                  "color-mix(in oklch, var(--foreground) 3%, transparent)",
-              }}
-            >
-              <span
-                className="w-[6px] h-[6px] rounded-full flex-shrink-0"
-                style={{
-                  background: FX_VIOLET,
-                  boxShadow: `0 0 0 4px color-mix(in oklch, ${FX_VIOLET} 25%, transparent)`,
-                }}
-              />
-              Free · Open Source · MIT
-            </span>
           </div>
 
           {/* Feature bento grid */}
-          <div
-            className="grid gap-[14px]"
-            style={{ gridTemplateColumns: "repeat(6, 1fr)" }}
-          >
+          <div className="grid gap-3 md:grid-cols-4 lg:grid-cols-6">
             <OklchCard />
             <PresetsCard />
             <PreviewCard />
