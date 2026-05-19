@@ -24,9 +24,12 @@ export function ColorRow({ token, label }: ColorRowProps) {
     [dispatch, token],
   );
 
-  const preview = useCallback((oklch: string) => {
-    document.documentElement.style.setProperty(`--${token}`, oklch);
-  }, [token]);
+  const preview = useCallback(
+    (oklch: string | null) => {
+      document.documentElement.style.setProperty(`--${token}`, oklch ?? rawValue);
+    },
+    [token, rawValue],
+  );
 
   const handleResetToDerived = useCallback(() => {
     dispatch({ type: "RESET_TOKEN_TO_DERIVED", token });

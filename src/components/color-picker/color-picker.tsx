@@ -1,20 +1,15 @@
 "use client";
 
 import { TailwindPicker } from "@/features/theming/components/tailwind-picker";
-import { toOklch } from "@/features/theming/lib/oklch";
-import { oklchToHex } from "@/utils/colors";
+import { toHex, toOklch } from "@/features/theming/lib/oklch";
 import { useEffect, useRef, useState } from "react";
 
 export type ColorPickerProps = {
   value: string;
   onCommit: (oklch: string) => void;
-  onPreview?: (oklch: string) => void;
+  onPreview?: (oklch: string | null) => void;
   showTailwindPalette?: boolean;
 };
-
-function isValidHex(s: string): boolean {
-  return /^#[0-9A-Fa-f]{6}$/.test(s);
-}
 
 export function ColorPicker({
   value,
@@ -22,93 +17,34 @@ export function ColorPicker({
   onPreview,
   showTailwindPalette = true,
 }: ColorPickerProps) {
-  const hexFromProp = oklchToHex(value) || "#000000";
-  const [liveHex, setLiveHex] = useState(hexFromProp);
-  const [textInput, setTextInput] = useState(hexFromProp);
+  const [liveHex, setLiveHex] = useState(() => toHex(value) || "#000000");
   const nativeRef = useRef<HTMLInputElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const rafRef = useRef<number | null>(null);
-  const pendingOklch = useRef<string | null>(null);
-  const isTextFocused = useRef(false);
-  const dialogOpenHex = useRef<string | null>(null);
+  const startHexRef = useRef<string | null>(null);
   const onCommitRef = useRef(onCommit);
   const onPreviewRef = useRef(onPreview);
   onCommitRef.current = onCommit;
   onPreviewRef.current = onPreview;
 
+  // Sync swatch when external value changes (undo, preset apply, etc.)
   useEffect(() => {
-    const hex = oklchToHex(value) || "#000000";
-    setLiveHex(hex);
-    if (!isTextFocused.current) setTextInput(hex);
+    setLiveHex(toHex(value) || "#000000");
   }, [value]);
 
+  // Native "change" fires when the color dialog closes (not on every drag step)
   useEffect(() => {
     const el = nativeRef.current;
     if (!el) return;
-
-    const onClose = (e: Event) => {
-      if (rafRef.current != null) {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = null;
-      }
-      pendingOklch.current = null;
-
+    const handleClose = (e: Event) => {
       const finalHex = (e.target as HTMLInputElement).value;
-      // Skip commit (and undo entry) if the user closed without changing anything
-      if (
-        dialogOpenHex.current !== null &&
-        finalHex === dialogOpenHex.current
-      ) {
-        dialogOpenHex.current = null;
-        return;
+      onPreviewRef.current?.(null); // always clear preview on close
+      if (startHexRef.current !== null && finalHex !== startHexRef.current) {
+        onCommitRef.current(toOklch(finalHex));
       }
-      dialogOpenHex.current = null;
-      onCommitRef.current(toOklch(finalHex));
+      startHexRef.current = null;
     };
-
-    el.addEventListener("change", onClose);
-    return () => {
-      el.removeEventListener("change", onClose);
-      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
-    };
+    el.addEventListener("change", handleClose);
+    return () => el.removeEventListener("change", handleClose);
   }, []);
-
-  const schedulePreview = (hex: string) => {
-    if (!onPreviewRef.current) return;
-    pendingOklch.current = toOklch(hex);
-    if (rafRef.current == null) {
-      rafRef.current = requestAnimationFrame(() => {
-        if (pendingOklch.current) onPreviewRef.current?.(pendingOklch.current);
-        pendingOklch.current = null;
-        rafRef.current = null;
-      });
-    }
-  };
-
-  const handleNativeChange = (hex: string) => {
-    setLiveHex(hex);
-    if (!isTextFocused.current) setTextInput(hex);
-    schedulePreview(hex);
-  };
-
-  const handleTextChange = (text: string) => {
-    setTextInput(text);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      if (isValidHex(text)) {
-        setLiveHex(text);
-        onCommitRef.current(toOklch(text));
-      }
-    }, 120);
-  };
-
-  const commitText = (text: string) => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (isValidHex(text)) {
-      setLiveHex(text);
-      onCommitRef.current(toOklch(text));
-    }
-  };
 
   return (
     <div className="flex items-center gap-1.5">
@@ -121,9 +57,12 @@ export function ColorPicker({
           ref={nativeRef}
           type="color"
           value={liveHex}
-          onChange={(e) => handleNativeChange(e.target.value)}
           onFocus={() => {
-            dialogOpenHex.current = liveHex;
+            startHexRef.current = liveHex;
+          }}
+          onChange={(e) => {
+            setLiveHex(e.target.value);
+            onPreviewRef.current?.(toOklch(e.target.value));
           }}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer rounded-md"
           tabIndex={-1}
@@ -131,31 +70,11 @@ export function ColorPicker({
         />
       </div>
 
-      <input
-        type="text"
-        value={textInput}
-        onChange={(e) => handleTextChange(e.target.value)}
-        onFocus={() => {
-          isTextFocused.current = true;
-        }}
-        onBlur={(e) => {
-          isTextFocused.current = false;
-          commitText(e.target.value);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") commitText(textInput);
-        }}
-        spellCheck={false}
-        className="w-20 hidden px-2 py-1 text-xs font-mono border border-border rounded-md bg-background focus:outline-none focus:ring-1 focus:ring-ring"
-        aria-label="Hex color value"
-      />
-
       {showTailwindPalette && (
         <TailwindPicker
           onSelect={(oklch) => {
-            const hex = oklchToHex(oklch) || "#000000";
-            setLiveHex(hex);
-            setTextInput(hex);
+            setLiveHex(toHex(oklch) || "#000000");
+            onPreviewRef.current?.(null);
             onCommitRef.current(oklch);
           }}
         />

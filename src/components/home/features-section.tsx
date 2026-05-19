@@ -14,7 +14,6 @@ import React, { useEffect, useId, useRef, useState } from "react";
 
 const FX_VIOLET = "oklch(68% 0.16 285)";
 
-// ─── reduced-motion hook ───────────────────────────────────────────────────
 function useReducedMotion() {
   const [reduced, setReduced] = useState(false);
   useEffect(() => {
@@ -27,19 +26,8 @@ function useReducedMotion() {
   return reduced;
 }
 
-// ─── diagonal stagger index ────────────────────────────────────────────────
-// grid: 6 cols, cards occupy 2 cols each → positions 0,2,4 on row 0 and 0,2,4 on row 1
-// diagonal index = col + row
-const CARD_DIAGONAL: number[] = [
-  0, // OklchCard    col=0 row=0
-  1, // PresetsCard  col=2 row=0 → diag 1
-  2, // PreviewCard  col=4 row=0 → diag 2
-  1, // SplitCard    col=0 row=1 → diag 1 (wide)
-  2, // TypographyCard col=2 row=1
-  3, // IOCard       col=4 row=1
-];
+const CARD_DIAGONAL: number[] = [0, 1, 2, 1, 2, 3];
 
-// ─── FCard base with cursor spotlight + tilt ──────────────────────────────
 function FCard({
   children,
   wide = false,
@@ -67,7 +55,6 @@ function FCard({
     const y = e.clientY - rect.top;
     mouseX.set(x);
     mouseY.set(y);
-    // tilt: max 4deg
     rotateX.set((-(y - rect.height / 2) / rect.height) * 4);
     rotateY.set(((x - rect.width / 2) / rect.width) * 4);
   }
@@ -96,7 +83,11 @@ function FCard({
         rotateX: reduced ? 0 : rotateX,
         rotateY: reduced ? 0 : rotateY,
       }}
-      initial={reduced ? false : { opacity: 0, y: 24, scale: 0.96, filter: "blur(8px)" }}
+      initial={
+        reduced
+          ? false
+          : { opacity: 0, y: 24, scale: 0.96, filter: "blur(8px)" }
+      }
       animate={
         inView
           ? { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }
@@ -109,11 +100,14 @@ function FCard({
         delay,
         filter: { duration: 0.4, delay },
       }}
-      whileHover={reduced ? {} : { y: -4, boxShadow: "0 16px 40px -12px rgba(0,0,0,0.18)" }}
+      whileHover={
+        reduced
+          ? {}
+          : { y: -4, boxShadow: "0 16px 40px -12px rgba(0,0,0,0.18)" }
+      }
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
     >
-      {/* cursor spotlight */}
       <m.div
         className="pointer-events-none absolute inset-0 rounded-[14px] z-10"
         style={{ background: spotlightBg }}
@@ -123,7 +117,6 @@ function FCard({
   );
 }
 
-// inner content cascade helper
 function CardContent({
   children,
   delay = 0,
@@ -145,20 +138,15 @@ function CardContent({
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// Card 1 — Real-time OKLCH editor
-// ═══════════════════════════════════════════════════════════════════
 function OklchCard() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-10%" });
   const isVisible = useInView(ref, { once: false, margin: "0px" });
   const reduced = useReducedMotion();
 
-  // Hue angle motion value — drives both the dot orbit and H display
   const angle = useMotionValue(258);
   const hDisplay = useTransform(angle, (a) => Math.round(a));
 
-  // Wheel rotation (ambient + hover speed)
   const [hovered, setHovered] = useState(false);
 
   const LEGEND = [
@@ -169,7 +157,6 @@ function OklchCard() {
 
   useEffect(() => {
     if (reduced || !isVisible) return;
-    // Continuously increment angle
     let raf: number;
     let last: number | null = null;
     const degsPerMs = hovered ? 360 / 12000 : 360 / 40000;
@@ -184,10 +171,9 @@ function OklchCard() {
     return () => cancelAnimationFrame(raf);
   }, [hovered, isVisible, reduced, angle]);
 
-  // dot position on the wheel (orbit at radius 68px from center of 150px wheel)
   const dotX = useTransform(angle, (a) => {
     const rad = ((a - 90) * Math.PI) / 180;
-    return 75 + 68 * Math.cos(rad) - 7; // 7 = half dot size
+    return 75 + 68 * Math.cos(rad) - 7;
   });
   const dotY = useTransform(angle, (a) => {
     const rad = ((a - 90) * Math.PI) / 180;
@@ -205,7 +191,6 @@ function OklchCard() {
         onMouseLeave={() => setHovered(false)}
       >
         <CardContent delay={cardDelay + 0.1} inView={inView}>
-          {/* color wheel */}
           <div
             className="relative w-[150px] h-[150px] rounded-full flex-shrink-0"
             style={{
@@ -215,7 +200,6 @@ function OklchCard() {
                 "inset 0 0 0 1px color-mix(in oklch, var(--foreground) 8%, transparent), 0 12px 32px -16px color-mix(in oklch, var(--foreground) 28%, transparent)",
             }}
           >
-            {/* center hub */}
             <div
               className="absolute inset-[22px] rounded-full flex flex-col items-center justify-center gap-[2px]"
               style={{
@@ -224,14 +208,17 @@ function OklchCard() {
                   "inset 0 0 0 1px color-mix(in oklch, var(--foreground) 6%, transparent)",
               }}
             >
-              <span className="font-mono text-[10px] text-muted-foreground">L 68</span>
-              <span className="font-mono text-[10px] text-muted-foreground">C .14</span>
+              <span className="font-mono text-[10px] text-muted-foreground">
+                L 68
+              </span>
+              <span className="font-mono text-[10px] text-muted-foreground">
+                C .14
+              </span>
               <span className="font-mono text-[10px] text-muted-foreground">
                 H <m.span>{hDisplay}</m.span>°
               </span>
             </div>
 
-            {/* orbiting dot — positioned absolutely */}
             <m.div
               className="absolute w-[14px] h-[14px] rounded-full"
               style={{
@@ -248,7 +235,6 @@ function OklchCard() {
           </div>
         </CardContent>
 
-        {/* legend dots */}
         <CardContent delay={cardDelay + 0.16} inView={inView}>
           <div className="flex gap-[14px] mt-4 flex-wrap justify-center">
             {LEGEND.map(({ label, color }, i) => (
@@ -291,8 +277,8 @@ function OklchCard() {
             Real-time OKLCH editor
           </h3>
           <p className="m-0 text-[13.5px] leading-[1.55] text-muted-foreground max-w-[42ch]">
-            Edit every token in OKLCH and watch real components recolor at 60fps. No
-            round-tripping to hex, no perceptual surprises.
+            Edit every token in OKLCH and watch real components recolor at
+            60fps. No round-tripping to hex, no perceptual surprises.
           </p>
         </div>
       </CardContent>
@@ -300,13 +286,14 @@ function OklchCard() {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// Card 2 — Curated theme presets
-// ═══════════════════════════════════════════════════════════════════
 const PRESETS = [
   { name: "Neo Brutalism", colors: ["#111", "#f5f5f5", "#ff5a36", "#ffd23f"] },
   { name: "Marshmallow", colors: ["#f9e6ec", "#ffd1dc", "#c98aaf", "#5a3a4d"] },
-  { name: "Forest Ink", colors: ["#0d1f17", "#244b3a", "#7fae8a", "#e6f0e8"], active: true },
+  {
+    name: "Forest Ink",
+    colors: ["#0d1f17", "#244b3a", "#7fae8a", "#e6f0e8"],
+    active: true,
+  },
   { name: "Newsprint", colors: ["#f4f0e6", "#1a1a1a", "#9a8c75", "#c8202b"] },
 ];
 
@@ -315,7 +302,7 @@ function PresetsCard() {
   const inView = useInView(ref, { once: true, margin: "-10%" });
   const reduced = useReducedMotion();
   const layoutId = useId();
-  const [activeIdx, setActiveIdx] = useState(2); // Forest Ink
+  const [activeIdx, setActiveIdx] = useState(2);
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
   const cardDelay = CARD_DIAGONAL[1] * 0.08;
 
@@ -419,8 +406,8 @@ function PresetsCard() {
             Curated theme presets
           </h3>
           <p className="m-0 text-[13.5px] leading-[1.55] text-muted-foreground max-w-[42ch]">
-            Start from a thoughtful baseline — minimalist, bold, editorial. Tweak from
-            there or use as-is.
+            Start from a thoughtful baseline — minimalist, bold, editorial.
+            Tweak from there or use as-is.
           </p>
         </div>
       </CardContent>
@@ -428,9 +415,6 @@ function PresetsCard() {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// Card 3 — Live component preview
-// ═══════════════════════════════════════════════════════════════════
 function PreviewCard() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-10%" });
@@ -438,7 +422,6 @@ function PreviewCard() {
   const reduced = useReducedMotion();
   const cardDelay = CARD_DIAGONAL[2] * 0.08;
 
-  // magnetic button
   const btnRef = useRef<HTMLDivElement>(null);
   const btnX = useMotionValue(0);
   const btnY = useMotionValue(0);
@@ -489,7 +472,6 @@ function PreviewCard() {
               minHeight: "180px",
             }}
           >
-            {/* titlebar */}
             <div
               className="flex items-center gap-2 px-3 py-2 border-b border-border"
               style={{
@@ -574,7 +556,6 @@ function PreviewCard() {
                           delay: cardDelay + 0.18 + bi * 0.14,
                         }}
                       />
-                      {/* shimmer */}
                       {!reduced && isVisible && (
                         <m.span
                           className="absolute inset-0 rounded-[4px]"
@@ -583,7 +564,9 @@ function PreviewCard() {
                               "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.22) 50%, transparent 100%)",
                             backgroundSize: "200% 100%",
                           }}
-                          animate={{ backgroundPosition: ["200% 0", "-200% 0"] }}
+                          animate={{
+                            backgroundPosition: ["200% 0", "-200% 0"],
+                          }}
                           transition={{
                             duration: 2.2,
                             repeat: Infinity,
@@ -596,7 +579,6 @@ function PreviewCard() {
                   </div>
                 ))}
 
-                {/* magnetic button */}
                 <m.div
                   ref={btnRef}
                   className="self-start mt-[2px] px-3 py-[6px] rounded-full text-[11px] font-medium cursor-pointer select-none"
@@ -631,8 +613,8 @@ function PreviewCard() {
             Live component preview
           </h3>
           <p className="m-0 text-[13.5px] leading-[1.55] text-muted-foreground max-w-[42ch]">
-            Buttons, cards, inputs and sidebars react to your tokens the moment you
-            change them.
+            Buttons, cards, inputs and sidebars react to your tokens the moment
+            you change them.
           </p>
         </div>
       </CardContent>
@@ -640,9 +622,6 @@ function PreviewCard() {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// Card 4 — Light & dark side by side
-// ═══════════════════════════════════════════════════════════════════
 function SplitCard() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-10%" });
@@ -667,7 +646,6 @@ function SplitCard() {
               minHeight: "200px",
             }}
           >
-            {/* Light side */}
             <div
               className="flex flex-col gap-[10px] p-[18px]"
               style={{ background: "#f5f5f4", color: "#18181b" }}
@@ -686,15 +664,26 @@ function SplitCard() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   initial={reduced ? false : { rotate: -180, opacity: 0 }}
-                  animate={inView ? { rotate: 0, opacity: 1 } : { rotate: -180, opacity: 0 }}
-                  transition={{ type: "spring", stiffness: 180, damping: 22, delay: cardDelay + 0.2 }}
+                  animate={
+                    inView
+                      ? { rotate: 0, opacity: 1 }
+                      : { rotate: -180, opacity: 0 }
+                  }
+                  transition={{
+                    type: "spring",
+                    stiffness: 180,
+                    damping: 22,
+                    delay: cardDelay + 0.2,
+                  }}
                 >
                   <circle cx={12} cy={12} r={4} />
                   <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4l1.4-1.4M17 7l1.4-1.4" />
                 </m.svg>
               </span>
               <div className="flex flex-col gap-2 mt-auto">
-                <span className="font-serif italic text-[34px] leading-none">Aa</span>
+                <span className="font-serif italic text-[34px] leading-none">
+                  Aa
+                </span>
                 <m.span
                   className="self-start px-[11px] py-[5px] rounded-full text-[11px] font-medium"
                   style={{ background: "#18181b", color: "#f5f5f4" }}
@@ -711,21 +700,29 @@ function SplitCard() {
                 >
                   Continue
                 </m.span>
-                <span className="h-[5px] rounded-[3px] w-[90%]" style={{ background: "currentColor", opacity: 0.12 }} />
-                <span className="h-[5px] rounded-[3px] w-[60%]" style={{ background: "currentColor", opacity: 0.12 }} />
+                <span
+                  className="h-[5px] rounded-[3px] w-[90%]"
+                  style={{ background: "currentColor", opacity: 0.12 }}
+                />
+                <span
+                  className="h-[5px] rounded-[3px] w-[60%]"
+                  style={{ background: "currentColor", opacity: 0.12 }}
+                />
               </div>
             </div>
 
-            {/* Divider — draws on entrance, glow on hover */}
             <div className="relative" style={{ background: "var(--border)" }}>
               <m.div
                 className="absolute inset-0"
                 style={{ transformOrigin: "top", background: "var(--border)" }}
                 initial={reduced ? false : { scaleY: 0 }}
                 animate={inView ? { scaleY: 1 } : { scaleY: 0 }}
-                transition={{ duration: 0.6, delay: cardDelay + 0.15, ease: [0.22, 1, 0.36, 1] }}
+                transition={{
+                  duration: 0.6,
+                  delay: cardDelay + 0.15,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
               />
-              {/* sweep glow */}
               <AnimatePresence>
                 {cardHovered && !reduced && (
                   <m.div
@@ -745,19 +742,21 @@ function SplitCard() {
                 className="absolute top-1/2 left-1/2 w-[22px] h-[22px] rounded-full border border-border"
                 style={{
                   transform: "translate(-50%, -50%)",
-                  background: "linear-gradient(90deg, #f5f5f4 0 50%, #0f0f10 50% 100%)",
+                  background:
+                    "linear-gradient(90deg, #f5f5f4 0 50%, #0f0f10 50% 100%)",
                 }}
               />
             </div>
-
-            {/* Dark side */}
             <div
               className="flex flex-col gap-[10px] p-[18px]"
               style={{ background: "#0f0f10", color: "#f4f4f5" }}
             >
               <span
                 className="inline-flex w-7 h-7 items-center justify-center rounded-[8px] self-start"
-                style={{ background: "color-mix(in oklch, var(--foreground) 6%, transparent)" }}
+                style={{
+                  background:
+                    "color-mix(in oklch, var(--foreground) 6%, transparent)",
+                }}
               >
                 <m.svg
                   viewBox="0 0 24 24"
@@ -769,14 +768,25 @@ function SplitCard() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   initial={reduced ? false : { rotate: 180, opacity: 0 }}
-                  animate={inView ? { rotate: 0, opacity: 1 } : { rotate: 180, opacity: 0 }}
-                  transition={{ type: "spring", stiffness: 180, damping: 22, delay: cardDelay + 0.2 }}
+                  animate={
+                    inView
+                      ? { rotate: 0, opacity: 1 }
+                      : { rotate: 180, opacity: 0 }
+                  }
+                  transition={{
+                    type: "spring",
+                    stiffness: 180,
+                    damping: 22,
+                    delay: cardDelay + 0.2,
+                  }}
                 >
                   <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
                 </m.svg>
               </span>
               <div className="flex flex-col gap-2 mt-auto">
-                <span className="font-serif italic text-[34px] leading-none">Aa</span>
+                <span className="font-serif italic text-[34px] leading-none">
+                  Aa
+                </span>
                 <m.span
                   className="self-start px-[11px] py-[5px] rounded-full text-[11px] font-medium"
                   style={{ background: "#f4f4f5", color: "#0f0f10" }}
@@ -789,13 +799,19 @@ function SplitCard() {
                     duration: 3,
                     repeat: Infinity,
                     ease: "easeInOut",
-                    delay: 0, // synchronized with light side
+                    delay: 0,
                   }}
                 >
                   Continue
                 </m.span>
-                <span className="h-[5px] rounded-[3px] w-[90%]" style={{ background: "currentColor", opacity: 0.12 }} />
-                <span className="h-[5px] rounded-[3px] w-[60%]" style={{ background: "currentColor", opacity: 0.12 }} />
+                <span
+                  className="h-[5px] rounded-[3px] w-[90%]"
+                  style={{ background: "currentColor", opacity: 0.12 }}
+                />
+                <span
+                  className="h-[5px] rounded-[3px] w-[60%]"
+                  style={{ background: "currentColor", opacity: 0.12 }}
+                />
               </div>
             </div>
           </div>
@@ -817,9 +833,6 @@ function SplitCard() {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// Card 5 — Typography & radius control
-// ═══════════════════════════════════════════════════════════════════
 const TYPE_ROWS = [
   {
     label: "H1 · 48 / 600",
@@ -860,7 +873,15 @@ const RADII = [
   { label: "pill", radius: "999px", br: 999 },
 ];
 
-function TypingText({ text, inView, delay = 0 }: { text: string; inView: boolean; delay?: number }) {
+function TypingText({
+  text,
+  inView,
+  delay = 0,
+}: {
+  text: string;
+  inView: boolean;
+  delay?: number;
+}) {
   const reduced = useReducedMotion();
   if (reduced) return <>{text}</>;
   return (
@@ -922,7 +943,11 @@ function TypographyCard() {
               </span>
               <span style={style}>
                 {isH1 ? (
-                  <TypingText text={sample} inView={inView} delay={cardDelay + 0.1} />
+                  <TypingText
+                    text={sample}
+                    inView={inView}
+                    delay={cardDelay + 0.1}
+                  />
                 ) : (
                   sample
                 )}
@@ -950,7 +975,9 @@ function TypographyCard() {
                 style={{ border: "1px solid transparent" }}
                 onClick={() => setActiveRadius(ri)}
                 initial={reduced ? false : { opacity: 0, scale: 0.9 }}
-                animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+                animate={
+                  inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }
+                }
                 transition={{
                   type: "spring",
                   stiffness: 260,
@@ -987,13 +1014,17 @@ function TypographyCard() {
                   className="inline-block w-3 h-3 relative z-10"
                   style={{
                     borderRadius: radius,
-                    background: isActive ? FX_VIOLET : "var(--muted-foreground)",
+                    background: isActive
+                      ? FX_VIOLET
+                      : "var(--muted-foreground)",
                   }}
                 />
                 <span
                   className="relative z-10"
                   style={{
-                    color: isActive ? "var(--foreground)" : "var(--muted-foreground)",
+                    color: isActive
+                      ? "var(--foreground)"
+                      : "var(--muted-foreground)",
                   }}
                 >
                   {label}
@@ -1010,8 +1041,8 @@ function TypographyCard() {
             Typography &amp; radius control
           </h3>
           <p className="m-0 text-[13.5px] leading-[1.55] text-muted-foreground max-w-[42ch]">
-            Dial in fonts, weights and corner radii to give your system its own voice —
-            not someone else&apos;s.
+            Dial in fonts, weights and corner radii to give your system its own
+            voice — not someone else&apos;s.
           </p>
         </div>
       </CardContent>
@@ -1019,14 +1050,18 @@ function TypographyCard() {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// Card 6 — Import & export themes
-// ═══════════════════════════════════════════════════════════════════
 const IO_CHIPS_LEFT = [
   {
     label: "Project",
     icon: (
-      <svg viewBox="0 0 16 16" width={11} height={11} fill="none" stroke="currentColor" strokeWidth={1.4}>
+      <svg
+        viewBox="0 0 16 16"
+        width={11}
+        height={11}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.4}
+      >
         <rect x={2} y={2} width={12} height={12} rx={2} />
         <path d="M5 6h6M5 9h4" />
       </svg>
@@ -1035,7 +1070,14 @@ const IO_CHIPS_LEFT = [
   {
     label: "Import",
     icon: (
-      <svg viewBox="0 0 16 16" width={11} height={11} fill="none" stroke="currentColor" strokeWidth={1.4}>
+      <svg
+        viewBox="0 0 16 16"
+        width={11}
+        height={11}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.4}
+      >
         <path d="M8 2v8M5 7l3 3 3-3M3 13h10" />
       </svg>
     ),
@@ -1045,7 +1087,14 @@ const IO_CHIPS_RIGHT = [
   {
     label: "Export",
     icon: (
-      <svg viewBox="0 0 16 16" width={11} height={11} fill="none" stroke="currentColor" strokeWidth={1.4}>
+      <svg
+        viewBox="0 0 16 16"
+        width={11}
+        height={11}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.4}
+      >
         <path d="M8 14V6M5 9l3-3 3 3M3 3h10" />
       </svg>
     ),
@@ -1053,18 +1102,32 @@ const IO_CHIPS_RIGHT = [
   {
     label: "Code",
     icon: (
-      <svg viewBox="0 0 16 16" width={11} height={11} fill="none" stroke="currentColor" strokeWidth={1.4}>
+      <svg
+        viewBox="0 0 16 16"
+        width={11}
+        height={11}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.4}
+      >
         <path d="M5 4l-3 4 3 4M11 4l3 4-3 4" />
       </svg>
     ),
   },
 ];
 
-// Particle that travels along a line vector when chip is hovered
 function LineParticle({
-  x1, y1, x2, y2, trigger,
+  x1,
+  y1,
+  x2,
+  y2,
+  trigger,
 }: {
-  x1: number; y1: number; x2: number; y2: number; trigger: boolean;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  trigger: boolean;
 }) {
   const reduced = useReducedMotion();
   if (reduced || !trigger) return null;
@@ -1102,8 +1165,9 @@ function IOCard() {
   const badgeRef = useRef<HTMLDivElement>(null);
   const chipRefs = useRef<Map<string, HTMLSpanElement>>(new Map());
 
-  // Compute particle vectors relative to container
-  const [vectors, setVectors] = useState<Record<string, { x1: number; y1: number; x2: number; y2: number }>>({});
+  const [vectors, setVectors] = useState<
+    Record<string, { x1: number; y1: number; x2: number; y2: number }>
+  >({});
   useEffect(() => {
     if (!containerRef.current || !badgeRef.current) return;
     const cRect = containerRef.current.getBoundingClientRect();
@@ -1120,7 +1184,6 @@ function IOCard() {
     setVectors(newVectors);
   }, [inView]);
 
-  // Retrigger particle on each new hover
   useEffect(() => {
     if (hoveredChip) setParticleTick((t) => t + 1);
   }, [hoveredChip]);
@@ -1132,16 +1195,24 @@ function IOCard() {
           <div
             ref={containerRef}
             className="grid items-center gap-1 h-full relative"
-            style={{ gridTemplateColumns: "auto 1fr auto 1fr auto", minHeight: "180px" }}
+            style={{
+              gridTemplateColumns: "auto 1fr auto 1fr auto",
+              minHeight: "180px",
+            }}
           >
             {/* Left chips */}
             <div className="flex flex-col gap-[6px]">
               {IO_CHIPS_LEFT.map((c) => (
                 <span
                   key={c.label}
-                  ref={(el) => { if (el) chipRefs.current.set(c.label, el); }}
+                  ref={(el) => {
+                    if (el) chipRefs.current.set(c.label, el);
+                  }}
                   className="inline-flex items-center gap-[6px] px-[9px] py-[6px] border border-border rounded-[7px] text-[10.5px] text-foreground whitespace-nowrap leading-none cursor-pointer"
-                  style={{ background: "color-mix(in oklch, var(--foreground) 3%, transparent)" }}
+                  style={{
+                    background:
+                      "color-mix(in oklch, var(--foreground) 3%, transparent)",
+                  }}
                   onMouseEnter={() => setHoveredChip(c.label)}
                   onMouseLeave={() => setHoveredChip(null)}
                 >
@@ -1152,8 +1223,15 @@ function IOCard() {
             </div>
 
             {/* Left SVG connector lines */}
-            <div className="h-full text-muted-foreground" style={{ minHeight: "80px" }}>
-              <svg viewBox="0 0 80 100" preserveAspectRatio="none" style={{ width: "100%", height: "100%" }}>
+            <div
+              className="h-full text-muted-foreground"
+              style={{ minHeight: "80px" }}
+            >
+              <svg
+                viewBox="0 0 80 100"
+                preserveAspectRatio="none"
+                style={{ width: "100%", height: "100%" }}
+              >
                 <m.path
                   d="M0 22 L 80 50"
                   stroke="currentColor"
@@ -1162,7 +1240,11 @@ function IOCard() {
                   opacity={0.5}
                   initial={reduced ? false : { pathLength: 0 }}
                   animate={inView ? { pathLength: 1 } : { pathLength: 0 }}
-                  transition={{ duration: 0.8, delay: cardDelay + 0.15, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{
+                    duration: 0.8,
+                    delay: cardDelay + 0.15,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                 />
                 <m.path
                   d="M0 78 L 80 50"
@@ -1172,7 +1254,11 @@ function IOCard() {
                   opacity={0.5}
                   initial={reduced ? false : { pathLength: 0 }}
                   animate={inView ? { pathLength: 1 } : { pathLength: 0 }}
-                  transition={{ duration: 0.8, delay: cardDelay + 0.15, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{
+                    duration: 0.8,
+                    delay: cardDelay + 0.15,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                 />
               </svg>
             </div>
@@ -1201,8 +1287,17 @@ function IOCard() {
                   : { scale: 0 }
               }
               transition={{
-                scale: { type: "spring", stiffness: 300, damping: 18, delay: cardDelay + 0.95 },
-                boxShadow: { duration: 2.5, repeat: Infinity, ease: "easeInOut" },
+                scale: {
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 18,
+                  delay: cardDelay + 0.95,
+                },
+                boxShadow: {
+                  duration: 2.5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                },
               }}
             >
               <span
@@ -1220,8 +1315,15 @@ function IOCard() {
             </m.div>
 
             {/* Right SVG connector lines */}
-            <div className="h-full text-muted-foreground" style={{ minHeight: "80px" }}>
-              <svg viewBox="0 0 80 100" preserveAspectRatio="none" style={{ width: "100%", height: "100%" }}>
+            <div
+              className="h-full text-muted-foreground"
+              style={{ minHeight: "80px" }}
+            >
+              <svg
+                viewBox="0 0 80 100"
+                preserveAspectRatio="none"
+                style={{ width: "100%", height: "100%" }}
+              >
                 <m.path
                   d="M0 50 L 80 22"
                   stroke="currentColor"
@@ -1230,7 +1332,11 @@ function IOCard() {
                   opacity={0.5}
                   initial={reduced ? false : { pathLength: 0 }}
                   animate={inView ? { pathLength: 1 } : { pathLength: 0 }}
-                  transition={{ duration: 0.8, delay: cardDelay + 0.15, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{
+                    duration: 0.8,
+                    delay: cardDelay + 0.15,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                 />
                 <m.path
                   d="M0 50 L 80 78"
@@ -1240,7 +1346,11 @@ function IOCard() {
                   opacity={0.5}
                   initial={reduced ? false : { pathLength: 0 }}
                   animate={inView ? { pathLength: 1 } : { pathLength: 0 }}
-                  transition={{ duration: 0.8, delay: cardDelay + 0.15, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{
+                    duration: 0.8,
+                    delay: cardDelay + 0.15,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                 />
               </svg>
             </div>
@@ -1250,9 +1360,14 @@ function IOCard() {
               {IO_CHIPS_RIGHT.map((c) => (
                 <span
                   key={c.label}
-                  ref={(el) => { if (el) chipRefs.current.set(c.label, el); }}
+                  ref={(el) => {
+                    if (el) chipRefs.current.set(c.label, el);
+                  }}
                   className="inline-flex items-center gap-[6px] px-[9px] py-[6px] border border-border rounded-[7px] text-[10.5px] text-foreground whitespace-nowrap leading-none cursor-pointer"
-                  style={{ background: "color-mix(in oklch, var(--foreground) 3%, transparent)" }}
+                  style={{
+                    background:
+                      "color-mix(in oklch, var(--foreground) 3%, transparent)",
+                  }}
                   onMouseEnter={() => setHoveredChip(c.label)}
                   onMouseLeave={() => setHoveredChip(null)}
                 >
@@ -1280,8 +1395,8 @@ function IOCard() {
             Import &amp; export themes
           </h3>
           <p className="m-0 text-[13.5px] leading-[1.55] text-muted-foreground max-w-[42ch]">
-            Bring in an existing token set or export yours as ready-to-paste CSS,
-            Tailwind or JSON — move themes between projects effortlessly.
+            Bring in an existing token set or export yours as ready-to-paste
+            CSS, Tailwind or JSON — move themes between projects effortlessly.
           </p>
         </div>
       </CardContent>
@@ -1289,9 +1404,6 @@ function IOCard() {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// Section shell
-// ═══════════════════════════════════════════════════════════════════
 export function FeaturesSection() {
   return (
     <LazyMotion features={domAnimation}>
@@ -1305,11 +1417,19 @@ export function FeaturesSection() {
           } as React.CSSProperties
         }
       >
-        <div className="absolute left-0 right-0 top-0 h-px pointer-events-none"
-          style={{ background: "linear-gradient(90deg, transparent, color-mix(in oklch, var(--foreground) 22%, var(--background)), transparent)" }}
+        <div
+          className="absolute left-0 right-0 top-0 h-px pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, color-mix(in oklch, var(--foreground) 22%, var(--background)), transparent)",
+          }}
         />
-        <div className="absolute left-0 right-0 bottom-0 h-px pointer-events-none"
-          style={{ background: "linear-gradient(90deg, transparent, color-mix(in oklch, var(--foreground) 22%, var(--background)), transparent)" }}
+        <div
+          className="absolute left-0 right-0 bottom-0 h-px pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, color-mix(in oklch, var(--foreground) 22%, var(--background)), transparent)",
+          }}
         />
 
         <div className="mx-auto max-w-[1200px] px-10 max-md:px-6">
@@ -1330,7 +1450,11 @@ export function FeaturesSection() {
                 Build your color system{" "}
                 <em
                   className="relative not-italic font-serif h-fit hero-gradient-em"
-                  style={{ fontStyle: "italic", fontWeight: 400, padding: "0 0.06em" }}
+                  style={{
+                    fontStyle: "italic",
+                    fontWeight: 400,
+                    padding: "0 0.06em",
+                  }}
                 >
                   effortlessly
                 </em>
@@ -1341,8 +1465,9 @@ export function FeaturesSection() {
                 className="text-[16px] leading-[1.6] text-muted-foreground m-0 max-w-[60ch]"
                 style={{ textWrap: "pretty" } as React.CSSProperties}
               >
-                Stylofy is a free playground for design tokens — edit in OKLCH, preview on
-                real components, and ship the CSS when it feels right.
+                Stylofy is a free playground for design tokens — edit in OKLCH,
+                preview on real components, and ship the CSS when it feels
+                right.
               </p>
             </div>
 

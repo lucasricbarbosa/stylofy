@@ -29,17 +29,24 @@ export function ColorPickerItem({ color, name, shortcut }: ColorPickerItemProps)
   );
 
   const preview = useCallback(
-    (oklch: string) => {
+    (oklch: string | null) => {
+      const root = document.documentElement;
+      if (oklch === null) {
+        // Revert all tokens to committed values
+        for (const t of Object.keys(modeTokens) as ShadcnToken[]) {
+          root.style.setProperty(`--${t}`, modeTokens[t].value);
+        }
+        return;
+      }
       const freshTokens = deriveShadcnTokens(
         { ...state.simple, [color]: oklch },
         state.activeMode,
       );
-      const root = document.documentElement;
       for (const t of Object.keys(freshTokens) as ShadcnToken[]) {
         root.style.setProperty(`--${t}`, freshTokens[t].value);
       }
     },
-    [color, state.simple, state.activeMode],
+    [color, state.simple, state.activeMode, modeTokens],
   );
 
   return (

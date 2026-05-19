@@ -1,5 +1,6 @@
 "use client";
 
+import { injectFontFamilyString } from "@/utils/fonts";
 import { useTheme } from "next-themes";
 import React, {
   createContext,
@@ -8,7 +9,6 @@ import React, {
   useEffect,
   useReducer,
 } from "react";
-import { injectFontFamilyString } from "@/utils/fonts";
 import { LocalThemesProvider } from "./hooks/useLocalThemes";
 import { SHADCN_DARK_DEFAULTS, SHADCN_LIGHT_DEFAULTS } from "./lib/defaults";
 import { deriveShadcnTokens } from "./lib/derive-shadcn";
@@ -47,7 +47,7 @@ const SIMPLE_TO_SHADCN_MAP: Record<keyof SimpleTokens, Set<ShadcnToken>> = {
     "input",
     "sidebar",
     "sidebar-border",
-    "muted-foreground", // blend of foreground + background
+    "muted-foreground",
   ]),
   primary: new Set<ShadcnToken>([
     "primary",
@@ -75,8 +75,6 @@ const SIMPLE_TO_SHADCN_MAP: Record<keyof SimpleTokens, Set<ShadcnToken>> = {
   ]),
 };
 
-// ── Actions ───────────────────────────────────────────────────────────────────
-
 type Action =
   | { type: "SET_SIMPLE"; key: keyof SimpleTokens; value: string }
   | { type: "SET_SHADCN_TOKEN"; token: ShadcnToken; value: string }
@@ -89,8 +87,6 @@ type Action =
   | { type: "SET_RADIUS"; value: string }
   | { type: "SET_FONT_FAMILY"; sans: string; mono: string };
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function snapshot(state: ThemeState): ThemeSnapshot {
   return { simple: state.simple, light: state.light, dark: state.dark };
 }
@@ -99,8 +95,6 @@ function pushPast(state: ThemeState): ThemeState {
   const past = [snapshot(state), ...state.past].slice(0, HISTORY_CAP);
   return { ...state, past, future: [] };
 }
-
-// ── Initial state ─────────────────────────────────────────────────────────────
 
 const DEFAULT_SIMPLE: SimpleTokens = {
   foreground: SHADCN_LIGHT_DEFAULTS.foreground,
@@ -133,8 +127,6 @@ function buildInitialState(): ThemeState {
 
 const INITIAL_STATE: ThemeState = buildInitialState();
 
-// ── Reducer ───────────────────────────────────────────────────────────────────
-
 function reducer(state: ThemeState, action: Action): ThemeState {
   switch (action.type) {
     case "SET_SIMPLE": {
@@ -143,8 +135,6 @@ function reducer(state: ThemeState, action: Action): ThemeState {
       const mapped = SIMPLE_TO_SHADCN_MAP[action.key];
       const isLight = state.activeMode === "light";
 
-      // Only recompute and update the active mode.
-      // The inactive mode is left completely untouched — no cross-mode propagation.
       const freshActive = deriveShadcnTokens(newSimple, state.activeMode);
 
       const mergeActive = (fresh: ModeTheme, prev: ModeTheme): ModeTheme => {
@@ -231,8 +221,18 @@ function reducer(state: ThemeState, action: Action): ThemeState {
       }
     }
 
-    case "SET_ACTIVE_MODE":
-      return { ...state, activeMode: action.mode };
+    case "SET_ACTIVE_MODE": {
+      if (state.activeMode === action.mode) return state;
+      const newModeTokens = action.mode === "light" ? state.light : state.dark;
+      const syncedSimple: SimpleTokens = {
+        foreground: newModeTokens.foreground.value,
+        background: newModeTokens.background.value,
+        primary: newModeTokens.primary.value,
+        secondary: newModeTokens.secondary.value,
+        accent: newModeTokens.accent.value,
+      };
+      return { ...state, activeMode: action.mode, simple: syncedSimple };
+    }
 
     case "APPLY_PRESET": {
       const { preset } = action;
@@ -283,7 +283,11 @@ function reducer(state: ThemeState, action: Action): ThemeState {
       const monoToken = { value: action.mono, source: "override" as const };
       return {
         ...state,
-        light: { ...state.light, "font-sans": sansToken, "font-mono": monoToken },
+        light: {
+          ...state.light,
+          "font-sans": sansToken,
+          "font-mono": monoToken,
+        },
         dark: { ...state.dark, "font-sans": sansToken, "font-mono": monoToken },
       };
     }
@@ -292,8 +296,6 @@ function reducer(state: ThemeState, action: Action): ThemeState {
       return state;
   }
 }
-
-// ── Context ───────────────────────────────────────────────────────────────────
 
 interface ThemingStoreContextValue {
   state: ThemeState;
@@ -305,8 +307,6 @@ interface ThemingStoreContextValue {
 const ThemingContext = createContext<ThemingStoreContextValue | undefined>(
   undefined,
 );
-
-// ── Persistence ───────────────────────────────────────────────────────────────
 
 function loadPersistedState(): Partial<ThemeState> {
   try {
@@ -325,8 +325,6 @@ function loadPersistedState(): Partial<ThemeState> {
   }
 }
 
-// ── Provider ──────────────────────────────────────────────────────────────────
-
 export function ThemingStoreProvider({
   children,
 }: {
@@ -338,14 +336,12 @@ export function ThemingStoreProvider({
     ...loadPersistedState(),
   }));
 
-  // Sync activeMode when resolvedTheme changes externally (OS toggle, header button)
   useEffect(() => {
     if (!resolvedTheme) return;
     const mode: ThemeMode = resolvedTheme === "dark" ? "dark" : "light";
     dispatch({ type: "SET_ACTIVE_MODE", mode });
   }, [resolvedTheme, dispatch]);
 
-  // Apply CSS vars to document root whenever state or color scheme changes
   useEffect(() => {
     const isDark = resolvedTheme === "dark";
     const tokens = isDark ? state.dark : state.light;
@@ -359,7 +355,6 @@ export function ThemingStoreProvider({
     }
   }, [state.light, state.dark, resolvedTheme]);
 
-  // Persist state
   useEffect(() => {
     const id = setTimeout(() => {
       try {
@@ -391,7 +386,6 @@ export function ThemingStoreProvider({
   );
 }
 
-// Keep old name as alias so layout.tsx doesn't break until step c
 export const ShadcnThemeStoreProvider = ThemingStoreProvider;
 
 export function useThemingStore(): ThemingStoreContextValue {
@@ -400,9 +394,6 @@ export function useThemingStore(): ThemingStoreContextValue {
     throw new Error("useThemingStore must be used inside ThemingStoreProvider");
   return ctx;
 }
-
-// ── Legacy compatibility shim (removed in step e) ────────────────────────────
-// Existing components use this API until they are updated in step e.
 
 interface LegacyStoreValue {
   state: {
