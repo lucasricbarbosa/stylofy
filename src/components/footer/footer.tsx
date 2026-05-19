@@ -12,7 +12,7 @@ export function Footer() {
       <div className="mx-auto flex max-w-[1200px] items-center justify-between px-10 py-8 max-md:flex-col max-md:gap-4 max-md:px-6">
         <div className="inline-flex items-center gap-2.5 text-muted-foreground">
           <span
-            className="brand-mark h-4 w-4 rounded-[5px]"
+            className="brand-mark min-w-4 min-h-4 max-w-4 max-h-4 h-4 w-4 rounded-[5px]"
             style={{
               boxShadow:
                 "inset 0 0 0 1px color-mix(in oklch, var(--foreground) 15%, transparent)",

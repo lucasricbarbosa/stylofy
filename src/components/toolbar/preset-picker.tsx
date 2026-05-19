@@ -31,7 +31,9 @@ function PresetSwatch({ preset }: { preset: BuiltInPreset }) {
 
 export function PresetPicker() {
   const { dispatch } = useThemingStore();
-  const simplePresets = BUILT_IN_PRESETS.filter((p) => p.level === "simple");
+  const simplePresets = BUILT_IN_PRESETS.filter(
+    (p) => p.level === "advanced",
+  ).slice(0, 8);
 
   return (
     <DropdownMenu>
@@ -46,7 +48,11 @@ export function PresetPicker() {
           </span>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="center" sideOffset={8} className="min-w-[200px]">
+      <DropdownMenuContent
+        align="center"
+        sideOffset={8}
+        className="min-w-[200px]"
+      >
         {simplePresets.map((preset) => (
           <DropdownMenuItem
             key={preset.name}

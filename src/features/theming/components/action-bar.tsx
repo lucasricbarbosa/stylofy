@@ -170,7 +170,7 @@ export function ActionBar() {
       {/* Secondary row: themes, import, random, contrast, export */}
       <div className="flex flex-col gap-1.5">
         <div className="flex flex-wrap items-center gap-1.5">
-          <ThemeSelector onExportTheme={() => {}} />
+          <ThemeSelector />
 
           <IconTextBtn
             onClick={handleRandom}

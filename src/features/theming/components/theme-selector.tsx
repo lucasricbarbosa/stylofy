@@ -9,19 +9,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { ChevronDown, Copy, Download, Trash2 } from "lucide-react";
+import { ChevronDown, Trash2 } from "lucide-react";
 import { useLocalThemes } from "../hooks/useLocalThemes";
 import { BUILT_IN_PRESETS } from "../lib/presets";
-import { useThemingStore, useStore } from "../store";
+import { useStore, useThemingStore } from "../store";
 
-interface ThemeSelectorProps {
-  onExportTheme: (id: string) => void;
-}
-
-export function ThemeSelector({ onExportTheme }: ThemeSelectorProps) {
+export function ThemeSelector() {
   const { dispatch } = useThemingStore();
   const { applyTheme } = useStore();
-  const { themes, deleteTheme, duplicateTheme } = useLocalThemes();
+  const { themes, deleteTheme } = useLocalThemes();
 
   return (
     <DropdownMenu>
@@ -32,7 +28,10 @@ export function ThemeSelector({ onExportTheme }: ThemeSelectorProps) {
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" className="w-56 max-h-80 overflow-y-auto">
+      <DropdownMenuContent
+        align="start"
+        className="w-56 max-h-80 overflow-y-auto"
+      >
         {themes.length > 0 && (
           <>
             <DropdownMenuLabel className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-2 py-1.5">
@@ -44,27 +43,34 @@ export function ThemeSelector({ onExportTheme }: ThemeSelectorProps) {
                   className="flex-1 cursor-pointer"
                   onClick={() => applyTheme(t.light, t.dark)}
                 >
+                  <div className="flex items-center gap-0.5 shrink-0">
+                    {(
+                      [
+                        t.light?.primary,
+                        t.light?.accent,
+                        t.light?.["chart-1"],
+                        t.light?.background,
+                      ] as string[]
+                    ).map((color, i) => (
+                      <div
+                        key={i}
+                        className="w-2.5 h-2.5 rounded-sm border border-border/50"
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
                   {t.name}
                 </DropdownMenuItem>
-                <div className={cn(
-                  "flex items-center gap-0.5 pr-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                )}>
+                <div
+                  className={cn(
+                    "flex items-center gap-0.5 pr-1.5 opacity-0 group-hover:opacity-100 transition-opacity",
+                  )}
+                >
                   <button
-                    onClick={(e) => { e.stopPropagation(); duplicateTheme(t.id); }}
-                    className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
-                    title="Duplicate"
-                  >
-                    <Copy className="size-3" />
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); onExportTheme(t.id); }}
-                    className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
-                    title="Export JSON"
-                  >
-                    <Download className="size-3" />
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); deleteTheme(t.id); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteTheme(t.id);
+                    }}
                     className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
                     title="Delete"
                   >
@@ -73,23 +79,8 @@ export function ThemeSelector({ onExportTheme }: ThemeSelectorProps) {
                 </div>
               </div>
             ))}
-            <DropdownMenuSeparator />
           </>
         )}
-
-        <DropdownMenuLabel className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground px-2 py-1.5">
-          Simple
-        </DropdownMenuLabel>
-        {BUILT_IN_PRESETS.filter((p) => p.level === "simple").map((p) => (
-          <DropdownMenuItem
-            key={p.name}
-            className="flex flex-col items-start gap-0.5 cursor-pointer"
-            onClick={() => dispatch({ type: "APPLY_PRESET", preset: p })}
-          >
-            <span className="text-xs font-medium">{p.name}</span>
-            <span className="text-[10px] text-muted-foreground">{p.description}</span>
-          </DropdownMenuItem>
-        ))}
 
         <DropdownMenuSeparator />
 
@@ -103,7 +94,14 @@ export function ThemeSelector({ onExportTheme }: ThemeSelectorProps) {
             onClick={() => dispatch({ type: "APPLY_PRESET", preset: p })}
           >
             <div className="flex items-center gap-0.5 shrink-0">
-              {([p.light?.primary.value, p.light?.accent.value, p.light?.["chart-1"].value, p.light?.background.value] as string[]).map((color, i) => (
+              {(
+                [
+                  p.light?.primary.value,
+                  p.light?.accent.value,
+                  p.light?.["chart-1"].value,
+                  p.light?.background.value,
+                ] as string[]
+              ).map((color, i) => (
                 <div
                   key={i}
                   className="w-2.5 h-2.5 rounded-sm border border-border/50"
@@ -113,7 +111,9 @@ export function ThemeSelector({ onExportTheme }: ThemeSelectorProps) {
             </div>
             <div className="flex flex-col gap-0.5 min-w-0">
               <span className="text-xs font-medium">{p.name}</span>
-              <span className="text-[10px] text-muted-foreground truncate">{p.description}</span>
+              <span className="text-[10px] text-muted-foreground truncate">
+                {p.description}
+              </span>
             </div>
           </DropdownMenuItem>
         ))}
