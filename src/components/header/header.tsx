@@ -86,13 +86,12 @@ function MobileMenu() {
           {/* Playground */}
           <MenuItem
             label="Playground"
-            href="/"
+            href="/template/components-showcase"
             index="01"
             isActive={isOnHome}
           />
 
           {/* Export */}
-          <MenuItem label="Export" href="/" index="02" isActive={false} />
 
           {/* Templates — collapsible */}
           <Collapsible defaultOpen={isOnTemplate}>

@@ -10,8 +10,7 @@ import {
 } from "../ui/navigation-menu";
 
 const NAV_LINKS = [
-  { label: "Playground", href: "/" },
-  { label: "Export", href: "/" },
+  { label: "Playground", href: "/template/components-showcase" },
 ];
 
 export function HeaderNav() {
