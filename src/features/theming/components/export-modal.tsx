@@ -157,7 +157,7 @@ export function ExportModal({ open, onClose }: ExportModalProps) {
         </div>
 
         {/* ── Code block ─────────────────────────────────────────────────── */}
-        <div className="p-5">
+        <div className="p-5 overflow-y-auto">
           <CodeBlock code={code} language={language}>
             <CodeBlockCopyButton />
           </CodeBlock>
