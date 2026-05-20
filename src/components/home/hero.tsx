@@ -9,8 +9,7 @@ export function Hero() {
     >
       {/* Version badge */}
       <div className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-border bg-background px-3 py-1.5 text-muted-foreground">
-        <span className="animate-dot-pulse block h-[7px] w-[7px] rounded-full bg-accent" />
-        <span className="font-mono text-[11px]">v1.0 · real-time tokens</span>
+        <span className="font-mono text-[11px]">v0.1 · beta version</span>
       </div>
 
       {/* Title */}
@@ -46,13 +45,13 @@ export function Hero() {
       <div className="flex sm:flex-row flex-col sm:items-center gap-2.5">
         <Link
           href="#features"
-          className="inline-flex w-fit items-center gap-2 rounded-full border border-foreground bg-foreground px-[22px] py-[13px] text-[14.5px] font-medium text-background transition-transform hover:-translate-y-px max-md:px-4 max-md:py-3 max-md:text-sm"
+          className="inline-flex w-fit items-center gap-2 rounded-md border border-foreground bg-foreground px-[22px] py-[13px] text-[14.5px] font-medium text-background transition-transform hover:-translate-y-px max-md:px-4 max-md:py-3 max-md:text-sm"
         >
           Explore features <span aria-hidden>→</span>
         </Link>
         <Link
           href="/template/genai-ai-agency-template"
-          className="inline-flex w-fit items-center gap-2 rounded-full px-[18px] py-[13px] text-[14.5px] font-medium text-foreground transition-colors hover:bg-muted max-md:px-4 max-md:py-3 max-md:text-sm"
+          className="inline-flex w-fit items-center gap-2 rounded-md px-[18px] py-[13px] text-[14.5px] font-medium text-foreground transition-colors hover:bg-muted max-md:px-4 max-md:py-3 max-md:text-sm"
         >
           See a template
         </Link>
@@ -72,7 +71,7 @@ export function Hero() {
           <span
             key={label}
             title={label}
-            className="block h-11 w-11 rounded-[14px] transition-transform duration-300 hover:-translate-x-1 hover:scale-105"
+            className="block h-11 w-11 rounded-md transition-transform duration-300 hover:-translate-x-1 hover:scale-105"
             style={{
               background: color,
               boxShadow:

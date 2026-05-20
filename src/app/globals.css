@@ -213,10 +213,14 @@ html.theme-transitioning *::after {
     border-right: 1px solid var(--border);
     background:
       linear-gradient(var(--primary) 0 100%) 16% 20% / 68% 7% no-repeat,
-      linear-gradient(to right, var(--border) 0 60%, transparent 60%) 16% 34% / 68% 1.5px no-repeat,
-      linear-gradient(to right, var(--border) 0 50%, transparent 50%) 16% 43% / 68% 1.5px no-repeat,
-      linear-gradient(to right, var(--border) 0 70%, transparent 70%) 16% 52% / 68% 1.5px no-repeat,
-      linear-gradient(to right, var(--border) 0 40%, transparent 40%) 16% 61% / 68% 1.5px no-repeat,
+      linear-gradient(to right, var(--border) 0 60%, transparent 60%) 16% 34% /
+        68% 1.5px no-repeat,
+      linear-gradient(to right, var(--border) 0 50%, transparent 50%) 16% 43% /
+        68% 1.5px no-repeat,
+      linear-gradient(to right, var(--border) 0 70%, transparent 70%) 16% 52% /
+        68% 1.5px no-repeat,
+      linear-gradient(to right, var(--border) 0 40%, transparent 40%) 16% 61% /
+        68% 1.5px no-repeat,
       var(--muted);
   }
   .t-docs::after {
@@ -228,14 +232,16 @@ html.theme-transitioning *::after {
     bottom: 10%;
     background:
       linear-gradient(var(--muted) 0 100%) 0 52% / 100% 28% no-repeat,
-      linear-gradient(to right, var(--border) 0 80%, transparent 80%) 0 43% / 100% 1.5px no-repeat,
-      linear-gradient(to right, var(--border) 0 65%, transparent 65%) 0 35% / 100% 1.5px no-repeat,
+      linear-gradient(to right, var(--border) 0 80%, transparent 80%) 0 43% /
+        100% 1.5px no-repeat,
+      linear-gradient(to right, var(--border) 0 65%, transparent 65%) 0 35% /
+        100% 1.5px no-repeat,
       linear-gradient(var(--foreground) 0 100%) 0 18% / 55% 11% no-repeat;
   }
 
   /* Bento card base — shared hover lift */
   .bento-card {
-    @apply bg-background border-border hover:border-border/80 relative overflow-hidden rounded-[22px] border p-[22px] transition-all duration-300 ease-out hover:-translate-y-0.5;
+    @apply bg-background border-border hover:border-border/80 relative overflow-hidden rounded-md border p-[22px] transition-all duration-300 ease-out hover:-translate-y-0.5;
     box-shadow: 0 1px 0 var(--border);
   }
   .bento-card:hover {

@@ -1,15 +1,14 @@
 "use client";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { CodeBlock, CodeBlockCopyButton } from "@/components/ui/code-block";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { Check, Copy } from "lucide-react";
 import { useMemo, useState } from "react";
-import { buildCssExport } from "../lib/export";
+import {
+  generateV3IndexCss,
+  generateV3TailwindConfig,
+  generateV4IndexCss,
+} from "../lib/tailwind-export";
 import { useThemingStore } from "../store";
 import type { ExportFormat, ModeTheme, TokenValues } from "../types";
 import { SHADCN_TOKENS } from "../types";
@@ -18,6 +17,13 @@ interface ExportModalProps {
   open: boolean;
   onClose: () => void;
 }
+
+type TailwindVersion = "v3" | "v4";
+
+const VERSIONS: { value: TailwindVersion; label: string }[] = [
+  { value: "v4", label: "Tailwind v4" },
+  { value: "v3", label: "Tailwind v3" },
+];
 
 const FORMATS: { value: ExportFormat; label: string }[] = [
   { value: "oklch", label: "OKLCH" },
@@ -34,103 +40,127 @@ function modeThemeToTokenValues(mt: ModeTheme): TokenValues {
   return result as TokenValues;
 }
 
-// Lightweight CSS syntax highlighting — ES2017 safe: no lookbehind, no /s flag.
-function highlight(css: string): string {
-  return css
-    .replace(
-      /(:root|\.dark)/g,
-      '<span style="color:var(--foreground)">$1</span>',
-    )
-    .replace(
-      /(--[\w-]+)(?=\s*:)/g,
-      '<span style="color:var(--foreground)">$1</span>',
-    )
-    .replace(
-      /(:\s*)((?:oklch|hsl|rgb)[^;]+)/g,
-      '$1<span style="color:var(--foreground)">$2</span>',
-    )
-    .replace(
-      /(:\s*)(#[\da-fA-F]{3,8})/g,
-      '$1<span style="color:var(--foreground)">$2</span>',
-    )
-    .replace(
-      /(:\s*)([\d.]+rem)/g,
-      '$1<span style="color:var(--foreground)">$2</span>',
-    );
+function PillGroup<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: { value: T; label: string }[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div
+      className="flex w-fit items-center gap-0.5 p-1 rounded-lg bg-muted"
+      role="tablist"
+    >
+      {options.map((opt) => (
+        <button
+          key={opt.value}
+          role="tab"
+          aria-selected={value === opt.value}
+          onClick={() => onChange(opt.value)}
+          className={cn(
+            "px-3 py-1 rounded-md text-xs font-medium transition-colors select-none",
+            value === opt.value
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 export function ExportModal({ open, onClose }: ExportModalProps) {
   const { state } = useThemingStore();
+  const [version, setVersion] = useState<TailwindVersion>("v4");
   const [format, setFormat] = useState<ExportFormat>("oklch");
-  const [copied, setCopied] = useState(false);
+  const [activeFile, setActiveFile] = useState("index.css");
 
-  const css = useMemo(
-    () =>
-      buildCssExport(
-        modeThemeToTokenValues(state.light),
-        modeThemeToTokenValues(state.dark),
-        format,
-      ),
-    [state.light, state.dark, format],
-  );
+  const files =
+    version === "v4" ? ["index.css"] : ["index.css", "tailwind.config.ts"];
 
-  function handleCopy() {
-    navigator.clipboard.writeText(css).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    });
+  const availableFormats =
+    version === "v3" ? FORMATS.filter((f) => f.value !== "oklch") : FORMATS;
+
+  function handleVersionChange(v: TailwindVersion) {
+    setVersion(v);
+    setActiveFile("index.css");
+    if (v === "v3" && format === "oklch") setFormat("hsl");
   }
+
+  const light = useMemo(
+    () => modeThemeToTokenValues(state.light),
+    [state.light],
+  );
+  const dark = useMemo(() => modeThemeToTokenValues(state.dark), [state.dark]);
+
+  const code = useMemo(() => {
+    if (version === "v4") return generateV4IndexCss(light, dark, format);
+    if (activeFile === "tailwind.config.ts")
+      return generateV3TailwindConfig(format);
+    return generateV3IndexCss(light, dark, format);
+  }, [version, format, activeFile, light, dark]);
+
+  const language: "css" | "typescript" =
+    activeFile === "tailwind.config.ts" ? "typescript" : "css";
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <div className="flex items-start justify-between gap-4">
+      <DialogContent className="sm:max-w-3xl sm:w-full p-0 gap-0 overflow-hidden">
+        {/* ── Header ─────────────────────────────────────────────────────── */}
+        <div className="px-6 pt-6 pb-4 border-b border-border">
+          <div className="flex items-start justify-between gap-4 pr-7 mb-4">
             <div>
-              <DialogTitle>Export Theme CSS</DialogTitle>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Copy and paste into your project&apos;s globals.css
+              <DialogTitle className="text-base">Export Theme CSS</DialogTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                Copy these files into your project to apply your theme.
               </p>
             </div>
-            <div className="flex items-center gap-1 shrink-0">
-              {FORMATS.map((f) => (
-                <button
-                  key={f.value}
-                  onClick={() => setFormat(f.value)}
-                  className={cn(
-                    "px-2.5 py-1 rounded-md text-xs font-medium transition-colors",
-                    format === f.value
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted",
-                  )}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
           </div>
-        </DialogHeader>
 
-        <div className="relative">
-          <button
-            onClick={handleCopy}
-            className={cn(
-              "absolute top-2 right-2 z-10 flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors",
-              "bg-card border border-border hover:bg-muted",
-              copied && "text-emerald-600",
-            )}
-          >
-            {copied ? (
-              <Check className="size-3" />
-            ) : (
-              <Copy className="size-3" />
-            )}
-            {copied ? "Copied!" : "Copy"}
-          </button>
-          <pre
-            className="overflow-auto max-h-[420px] rounded-lg bg-muted/50 border border-border p-4 text-[11px] font-mono leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: highlight(css) }}
-          />
+          {/* ── Selectors row ──────────────────────────────────────────── */}
+          <div className="flex sm:items-center gap-2.5 sm:flex-row flex-col">
+            <PillGroup
+              options={VERSIONS}
+              value={version}
+              onChange={handleVersionChange}
+            />
+            <div className="w-px sm:block hidden h-5 bg-border" />
+            <PillGroup
+              options={availableFormats}
+              value={format}
+              onChange={setFormat}
+            />
+          </div>
+        </div>
+
+        {/* ── File tabs ──────────────────────────────────────────────────── */}
+        <div className="flex items-end gap-0 px-6 pt-0 border-b border-border bg-muted/30">
+          {files.map((file) => (
+            <button
+              key={file}
+              onClick={() => setActiveFile(file)}
+              className={cn(
+                "px-3 py-2.5 text-[11.5px] font-mono transition-colors border-b-2 -mb-px",
+                activeFile === file
+                  ? "text-foreground border-foreground"
+                  : "text-muted-foreground border-transparent hover:text-foreground",
+              )}
+            >
+              {file}
+            </button>
+          ))}
+        </div>
+
+        {/* ── Code block ─────────────────────────────────────────────────── */}
+        <div className="p-5">
+          <CodeBlock code={code} language={language}>
+            <CodeBlockCopyButton />
+          </CodeBlock>
         </div>
       </DialogContent>
     </Dialog>

@@ -26,19 +26,13 @@ function useReducedMotion() {
   return reduced;
 }
 
-const CARD_DIAGONAL: number[] = [0, 1, 2, 1, 2, 3];
-
 function FCard({
   children,
   wide = false,
-  cardIndex = 0,
 }: {
   children: React.ReactNode;
   wide?: boolean;
-  cardIndex?: number;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10%" });
   const reduced = useReducedMotion();
 
   const mouseX = useMotionValue(0);
@@ -66,39 +60,18 @@ function FCard({
     mouseY.set(-999);
   }
 
-  const delay = CARD_DIAGONAL[cardIndex] * 0.08;
-
   return (
     <m.article
-      ref={ref}
-      className="col-span-2 flex flex-col overflow-hidden relative group"
+      className="col-span-2 rounded-md flex flex-col overflow-hidden relative group"
       style={{
         background: "var(--background)",
         border: "1px solid var(--border)",
-        borderRadius: "14px",
         padding: "24px",
         minHeight: wide ? "360px" : "320px",
         perspective: "1000px",
         transformStyle: "preserve-3d",
         rotateX: reduced ? 0 : rotateX,
         rotateY: reduced ? 0 : rotateY,
-      }}
-      initial={
-        reduced
-          ? false
-          : { opacity: 0, y: 24, scale: 0.96, filter: "blur(8px)" }
-      }
-      animate={
-        inView
-          ? { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }
-          : { opacity: 0, y: 24, scale: 0.96, filter: "blur(8px)" }
-      }
-      transition={{
-        type: "spring",
-        stiffness: 200,
-        damping: 24,
-        delay,
-        filter: { duration: 0.4, delay },
       }}
       whileHover={
         reduced
@@ -117,30 +90,8 @@ function FCard({
   );
 }
 
-function CardContent({
-  children,
-  delay = 0,
-  inView,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  inView: boolean;
-}) {
-  const reduced = useReducedMotion();
-  return (
-    <m.div
-      initial={reduced ? false : { opacity: 0, y: 10 }}
-      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-      transition={{ type: "spring", stiffness: 220, damping: 26, delay }}
-    >
-      {children}
-    </m.div>
-  );
-}
-
 function OklchCard() {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10%" });
   const isVisible = useInView(ref, { once: false, margin: "0px" });
   const reduced = useReducedMotion();
 
@@ -180,108 +131,94 @@ function OklchCard() {
     return 75 + 68 * Math.sin(rad) - 7;
   });
 
-  const cardDelay = CARD_DIAGONAL[0] * 0.08;
-
   return (
-    <FCard cardIndex={0}>
+    <FCard>
       <div
         ref={ref}
         className="flex-1 flex flex-col items-center justify-start pt-2 mb-[22px]"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        <CardContent delay={cardDelay + 0.1} inView={inView}>
+        <div
+          className="relative w-[150px] h-[150px] rounded-full flex-shrink-0"
+          style={{
+            background:
+              "conic-gradient(from 0deg, oklch(70% 0.16 0), oklch(70% 0.16 60), oklch(70% 0.16 120), oklch(70% 0.16 180), oklch(70% 0.16 240), oklch(70% 0.16 300), oklch(70% 0.16 360))",
+            boxShadow:
+              "inset 0 0 0 1px color-mix(in oklch, var(--foreground) 8%, transparent), 0 12px 32px -16px color-mix(in oklch, var(--foreground) 28%, transparent)",
+          }}
+        >
           <div
-            className="relative w-[150px] h-[150px] rounded-full flex-shrink-0"
+            className="absolute inset-[22px] rounded-full flex flex-col items-center justify-center gap-[2px]"
             style={{
-              background:
-                "conic-gradient(from 0deg, oklch(70% 0.16 0), oklch(70% 0.16 60), oklch(70% 0.16 120), oklch(70% 0.16 180), oklch(70% 0.16 240), oklch(70% 0.16 300), oklch(70% 0.16 360))",
+              background: "var(--background)",
               boxShadow:
-                "inset 0 0 0 1px color-mix(in oklch, var(--foreground) 8%, transparent), 0 12px 32px -16px color-mix(in oklch, var(--foreground) 28%, transparent)",
+                "inset 0 0 0 1px color-mix(in oklch, var(--foreground) 6%, transparent)",
             }}
           >
-            <div
-              className="absolute inset-[22px] rounded-full flex flex-col items-center justify-center gap-[2px]"
-              style={{
-                background: "var(--background)",
-                boxShadow:
-                  "inset 0 0 0 1px color-mix(in oklch, var(--foreground) 6%, transparent)",
-              }}
+            <span className="font-mono text-[10px] text-muted-foreground">
+              L 68
+            </span>
+            <span className="font-mono text-[10px] text-muted-foreground">
+              C .14
+            </span>
+            <span className="font-mono text-[10px] text-muted-foreground">
+              H <m.span>{hDisplay}</m.span>°
+            </span>
+          </div>
+
+          <m.div
+            className="absolute w-[14px] h-[14px] rounded-full"
+            style={{
+              top: 0,
+              left: 0,
+              x: dotX,
+              y: dotY,
+              background: "var(--foreground)",
+              border: "3px solid var(--background)",
+              boxShadow:
+                "0 2px 6px color-mix(in oklch, var(--foreground) 28%, transparent)",
+            }}
+          />
+        </div>
+
+        <div className="flex gap-[14px] mt-4 flex-wrap justify-center">
+          {LEGEND.map(({ label, color }, i) => (
+            <span
+              key={label}
+              className="inline-flex items-center gap-[6px] text-[11px] text-muted-foreground"
             >
-              <span className="font-mono text-[10px] text-muted-foreground">
-                L 68
-              </span>
-              <span className="font-mono text-[10px] text-muted-foreground">
-                C .14
-              </span>
-              <span className="font-mono text-[10px] text-muted-foreground">
-                H <m.span>{hDisplay}</m.span>°
-              </span>
-            </div>
-
-            <m.div
-              className="absolute w-[14px] h-[14px] rounded-full"
-              style={{
-                top: 0,
-                left: 0,
-                x: dotX,
-                y: dotY,
-                background: "var(--foreground)",
-                border: "3px solid var(--background)",
-                boxShadow:
-                  "0 2px 6px color-mix(in oklch, var(--foreground) 28%, transparent)",
-              }}
-            />
-          </div>
-        </CardContent>
-
-        <CardContent delay={cardDelay + 0.16} inView={inView}>
-          <div className="flex gap-[14px] mt-4 flex-wrap justify-center">
-            {LEGEND.map(({ label, color }, i) => (
-              <span
-                key={label}
-                className="inline-flex items-center gap-[6px] text-[11px] text-muted-foreground"
-              >
-                <m.i
-                  className="not-italic block w-[9px] h-[9px] rounded-full flex-shrink-0"
-                  style={{
-                    background: color,
-                    boxShadow:
-                      "inset 0 0 0 1px color-mix(in oklch, var(--foreground) 14%, transparent)",
-                  }}
-                  animate={
-                    reduced
-                      ? {}
-                      : {
-                          scale: [1, 1.3, 1],
-                        }
-                  }
-                  transition={{
-                    duration: 1.8,
-                    delay: i * 0.4,
-                    repeat: Infinity,
-                    repeatDelay: 1.5,
-                    ease: "easeInOut",
-                  }}
-                />
-                <span className="font-mono">{label}</span>
-              </span>
-            ))}
-          </div>
-        </CardContent>
+              <m.i
+                className="not-italic block w-[9px] h-[9px] rounded-full flex-shrink-0"
+                style={{
+                  background: color,
+                  boxShadow:
+                    "inset 0 0 0 1px color-mix(in oklch, var(--foreground) 14%, transparent)",
+                }}
+                animate={reduced ? {} : { scale: [1, 1.3, 1] }}
+                transition={{
+                  duration: 1.8,
+                  delay: i * 0.4,
+                  repeat: Infinity,
+                  repeatDelay: 1.5,
+                  ease: "easeInOut",
+                }}
+              />
+              <span className="font-mono">{label}</span>
+            </span>
+          ))}
+        </div>
       </div>
 
-      <CardContent delay={cardDelay + 0.22} inView={inView}>
-        <div className="mt-auto">
-          <h3 className="m-0 mb-[6px] text-[17px] font-medium tracking-[-0.015em] text-foreground">
-            Real-time OKLCH editor
-          </h3>
-          <p className="m-0 text-[13.5px] leading-[1.55] text-muted-foreground max-w-[42ch]">
-            Edit every token in OKLCH and watch real components recolor at
-            60fps. No round-tripping to hex, no perceptual surprises.
-          </p>
-        </div>
-      </CardContent>
+      <div className="mt-auto">
+        <h3 className="m-0 mb-[6px] text-[17px] font-medium tracking-[-0.015em] text-foreground">
+          Real-time OKLCH editor
+        </h3>
+        <p className="m-0 text-[13.5px] leading-[1.55] text-muted-foreground max-w-[42ch]">
+          Edit every token in OKLCH and watch real components recolor at 60fps.
+          No round-tripping to hex, no perceptual surprises.
+        </p>
+      </div>
     </FCard>
   );
 }
@@ -298,17 +235,14 @@ const PRESETS = [
 ];
 
 function PresetsCard() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10%" });
   const reduced = useReducedMotion();
   const layoutId = useId();
   const [activeIdx, setActiveIdx] = useState(2);
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
-  const cardDelay = CARD_DIAGONAL[1] * 0.08;
 
   return (
-    <FCard cardIndex={1}>
-      <div ref={ref} className="flex-1 mb-[22px]">
+    <FCard>
+      <div className="flex-1 mb-[22px]">
         <ul className="list-none p-0 m-0 flex flex-col gap-2">
           {PRESETS.map((preset, pi) => {
             const isActive = activeIdx === pi;
@@ -317,20 +251,11 @@ function PresetsCard() {
                 key={preset.name}
                 className="grid items-center gap-3 px-3 py-[10px] rounded-[10px] cursor-pointer relative"
                 style={{ gridTemplateColumns: "auto 1fr auto" }}
-                initial={reduced ? false : { opacity: 0, x: -20 }}
-                animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 220,
-                  damping: 26,
-                  delay: cardDelay + pi * 0.08,
-                }}
                 whileHover={reduced ? {} : { y: -2 }}
                 onHoverStart={() => setHoveredRow(pi)}
                 onHoverEnd={() => setHoveredRow(null)}
                 onClick={() => setActiveIdx(pi)}
               >
-                {/* layout-animated selection highlight */}
                 {isActive && (
                   <m.span
                     layoutId={`${layoutId}-preset-bg`}
@@ -354,7 +279,6 @@ function PresetsCard() {
                   />
                 )}
 
-                {/* color swatches */}
                 <span
                   className="inline-flex p-[3px] rounded-[6px] relative z-10"
                   style={{
@@ -400,27 +324,23 @@ function PresetsCard() {
         </ul>
       </div>
 
-      <CardContent delay={cardDelay + 0.36} inView={inView}>
-        <div className="mt-auto">
-          <h3 className="m-0 mb-[6px] text-[17px] font-medium tracking-[-0.015em] text-foreground">
-            Curated theme presets
-          </h3>
-          <p className="m-0 text-[13.5px] leading-[1.55] text-muted-foreground max-w-[42ch]">
-            Start from a thoughtful baseline — minimalist, bold, editorial.
-            Tweak from there or use as-is.
-          </p>
-        </div>
-      </CardContent>
+      <div className="mt-auto">
+        <h3 className="m-0 mb-[6px] text-[17px] font-medium tracking-[-0.015em] text-foreground">
+          Curated theme presets
+        </h3>
+        <p className="m-0 text-[13.5px] leading-[1.55] text-muted-foreground max-w-[42ch]">
+          Start from a thoughtful baseline — minimalist, bold, editorial. Tweak
+          from there or use as-is.
+        </p>
+      </div>
     </FCard>
   );
 }
 
 function PreviewCard() {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10%" });
   const isVisible = useInView(ref, { once: false, margin: "0px" });
   const reduced = useReducedMotion();
-  const cardDelay = CARD_DIAGONAL[2] * 0.08;
 
   const btnRef = useRef<HTMLDivElement>(null);
   const btnX = useMotionValue(0);
@@ -451,7 +371,7 @@ function PreviewCard() {
   ];
 
   return (
-    <FCard cardIndex={2}>
+    <FCard>
       <div
         ref={ref}
         className="flex-1 mb-[22px]"
@@ -463,372 +383,323 @@ function PreviewCard() {
           btnY.set(0);
         }}
       >
-        <CardContent delay={cardDelay + 0.1} inView={inView}>
+        <div
+          className="flex flex-col rounded-[10px] overflow-hidden border border-border"
+          style={{
+            background:
+              "color-mix(in oklch, var(--background), var(--foreground) 3%)",
+            minHeight: "180px",
+          }}
+        >
           <div
-            className="flex flex-col rounded-[10px] overflow-hidden border border-border"
+            className="flex items-center gap-2 px-3 py-2 border-b border-border"
             style={{
               background:
-                "color-mix(in oklch, var(--background), var(--foreground) 3%)",
-              minHeight: "180px",
+                "color-mix(in oklch, var(--foreground) 3%, transparent)",
             }}
           >
-            <div
-              className="flex items-center gap-2 px-3 py-2 border-b border-border"
-              style={{
-                background:
-                  "color-mix(in oklch, var(--foreground) 3%, transparent)",
-              }}
-            >
-              <span className="inline-flex gap-1">
-                {[0, 1, 2].map((i) => (
-                  <m.i
-                    key={i}
-                    className="not-italic block w-[7px] h-[7px] rounded-full"
+            <span className="inline-flex gap-1">
+              {[0, 1, 2].map((i) => (
+                <m.i
+                  key={i}
+                  className="not-italic block w-[7px] h-[7px] rounded-full"
+                  style={{
+                    background:
+                      "color-mix(in oklch, var(--foreground) 14%, transparent)",
+                  }}
+                  animate={
+                    cardHovered && !reduced
+                      ? { scale: [1, 1.3, 1] }
+                      : { scale: 1 }
+                  }
+                  transition={{
+                    duration: 0.5,
+                    delay: i * 0.12,
+                    ease: "easeInOut",
+                  }}
+                />
+              ))}
+            </span>
+            <span className="font-mono text-[10px] text-muted-foreground ml-auto">
+              /dashboard
+            </span>
+          </div>
+
+          <div
+            className="flex-1 grid gap-[10px] p-3"
+            style={{ gridTemplateColumns: "56px 1fr" }}
+          >
+            <div className="flex flex-col gap-[6px] pr-[10px] border-r border-border">
+              {[true, false, false, false].map((active, i) => (
+                <span
+                  key={i}
+                  className="h-2 rounded-[3px]"
+                  style={{
+                    background: active
+                      ? "var(--primary)"
+                      : "color-mix(in oklch, var(--foreground) 6%, transparent)",
+                    opacity: active ? 0.85 : 1,
+                  }}
+                />
+              ))}
+            </div>
+
+            <div className="flex flex-col gap-[10px]">
+              {BARS.map(({ label, color, width }, bi) => (
+                <div key={label} className="flex flex-col gap-[5px]">
+                  <span
+                    className="font-mono text-[10px] uppercase tracking-[0.04em]"
+                    style={{
+                      color:
+                        "color-mix(in oklch, var(--foreground), var(--background) 70%)",
+                    }}
+                  >
+                    {label}
+                  </span>
+                  <span
+                    className="h-2 rounded-[4px] relative overflow-hidden"
                     style={{
                       background:
-                        "color-mix(in oklch, var(--foreground) 14%, transparent)",
+                        "color-mix(in oklch, var(--foreground) 6%, transparent)",
                     }}
-                    animate={
-                      cardHovered && !reduced
-                        ? { scale: [1, 1.3, 1] }
-                        : { scale: 1 }
-                    }
-                    transition={{
-                      duration: 0.5,
-                      delay: i * 0.12,
-                      ease: "easeInOut",
-                    }}
-                  />
-                ))}
-              </span>
-              <span className="font-mono text-[10px] text-muted-foreground ml-auto">
-                /dashboard
-              </span>
-            </div>
-
-            <div
-              className="flex-1 grid gap-[10px] p-3"
-              style={{ gridTemplateColumns: "56px 1fr" }}
-            >
-              <div className="flex flex-col gap-[6px] pr-[10px] border-r border-border">
-                {[true, false, false, false].map((active, i) => (
-                  <span
-                    key={i}
-                    className="h-2 rounded-[3px]"
-                    style={{
-                      background: active
-                        ? "var(--primary)"
-                        : "color-mix(in oklch, var(--foreground) 6%, transparent)",
-                      opacity: active ? 0.85 : 1,
-                    }}
-                  />
-                ))}
-              </div>
-
-              <div className="flex flex-col gap-[10px]">
-                {BARS.map(({ label, color, width }, bi) => (
-                  <div key={label} className="flex flex-col gap-[5px]">
-                    <span
-                      className="font-mono text-[10px] uppercase tracking-[0.04em]"
-                      style={{
-                        color:
-                          "color-mix(in oklch, var(--foreground), var(--background) 70%)",
+                  >
+                    <m.i
+                      className="not-italic absolute left-0 top-0 bottom-0 rounded-[4px] block"
+                      style={{ background: color }}
+                      initial={{ width: "0%" }}
+                      animate={{ width }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 60,
+                        damping: 18,
+                        delay: bi * 0.14,
                       }}
-                    >
-                      {label}
-                    </span>
-                    <span
-                      className="h-2 rounded-[4px] relative overflow-hidden"
-                      style={{
-                        background:
-                          "color-mix(in oklch, var(--foreground) 6%, transparent)",
-                      }}
-                    >
-                      <m.i
-                        className="not-italic absolute left-0 top-0 bottom-0 rounded-[4px] block"
-                        style={{ background: color }}
-                        initial={{ width: "0%" }}
-                        animate={inView ? { width } : { width: "0%" }}
+                    />
+                    {!reduced && isVisible && (
+                      <m.span
+                        className="absolute inset-0 rounded-[4px]"
+                        style={{
+                          background:
+                            "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.22) 50%, transparent 100%)",
+                          backgroundSize: "200% 100%",
+                        }}
+                        animate={{
+                          backgroundPosition: ["200% 0", "-200% 0"],
+                        }}
                         transition={{
-                          type: "spring",
-                          stiffness: 60,
-                          damping: 18,
-                          delay: cardDelay + 0.18 + bi * 0.14,
+                          duration: 2.2,
+                          repeat: Infinity,
+                          ease: "linear",
+                          delay: bi * 0.5,
                         }}
                       />
-                      {!reduced && isVisible && (
-                        <m.span
-                          className="absolute inset-0 rounded-[4px]"
-                          style={{
-                            background:
-                              "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.22) 50%, transparent 100%)",
-                            backgroundSize: "200% 100%",
-                          }}
-                          animate={{
-                            backgroundPosition: ["200% 0", "-200% 0"],
-                          }}
-                          transition={{
-                            duration: 2.2,
-                            repeat: Infinity,
-                            ease: "linear",
-                            delay: bi * 0.5,
-                          }}
-                        />
-                      )}
-                    </span>
-                  </div>
-                ))}
+                    )}
+                  </span>
+                </div>
+              ))}
 
-                <m.div
-                  ref={btnRef}
-                  className="self-start mt-[2px] px-3 py-[6px] rounded-full text-[11px] font-medium cursor-pointer select-none"
-                  style={{
-                    background: "var(--foreground)",
-                    color: "var(--background)",
-                    x: btnX,
-                    y: btnY,
-                  }}
-                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                  onHoverStart={() => setBtnHovered(true)}
-                  onHoverEnd={() => setBtnHovered(false)}
+              <m.div
+                ref={btnRef}
+                className="self-start mt-[2px] px-3 py-[6px] rounded-full text-[11px] font-medium cursor-pointer select-none"
+                style={{
+                  background: "var(--foreground)",
+                  color: "var(--background)",
+                  x: btnX,
+                  y: btnY,
+                }}
+                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                onHoverStart={() => setBtnHovered(true)}
+                onHoverEnd={() => setBtnHovered(false)}
+              >
+                Get started{" "}
+                <m.span
+                  className="inline-block"
+                  animate={btnHovered && !reduced ? { x: 4 } : { x: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 >
-                  Get started{" "}
-                  <m.span
-                    className="inline-block"
-                    animate={btnHovered && !reduced ? { x: 4 } : { x: 0 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  >
-                    →
-                  </m.span>
-                </m.div>
-              </div>
+                  →
+                </m.span>
+              </m.div>
             </div>
           </div>
-        </CardContent>
+        </div>
       </div>
 
-      <CardContent delay={cardDelay + 0.26} inView={inView}>
-        <div className="mt-auto">
-          <h3 className="m-0 mb-[6px] text-[17px] font-medium tracking-[-0.015em] text-foreground">
-            Live component preview
-          </h3>
-          <p className="m-0 text-[13.5px] leading-[1.55] text-muted-foreground max-w-[42ch]">
-            Buttons, cards, inputs and sidebars react to your tokens the moment
-            you change them.
-          </p>
-        </div>
-      </CardContent>
+      <div className="mt-auto">
+        <h3 className="m-0 mb-[6px] text-[17px] font-medium tracking-[-0.015em] text-foreground">
+          Live component preview
+        </h3>
+        <p className="m-0 text-[13.5px] leading-[1.55] text-muted-foreground max-w-[42ch]">
+          Buttons, cards, inputs and sidebars react to your tokens the moment
+          you change them.
+        </p>
+      </div>
     </FCard>
   );
 }
 
 function SplitCard() {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10%" });
   const isVisible = useInView(ref, { once: false, margin: "0px" });
   const reduced = useReducedMotion();
-  const cardDelay = CARD_DIAGONAL[3] * 0.08;
   const [cardHovered, setCardHovered] = useState(false);
 
   return (
-    <FCard cardIndex={3} wide>
+    <FCard wide>
       <div
         ref={ref}
         className="flex-1 flex items-center justify-center mb-[22px]"
         onMouseEnter={() => setCardHovered(true)}
         onMouseLeave={() => setCardHovered(false)}
       >
-        <CardContent delay={cardDelay + 0.1} inView={inView}>
+        <div
+          className="grid rounded-[12px] overflow-hidden border border-border w-full relative"
+          style={{
+            gridTemplateColumns: "1fr 1px 1fr",
+            minHeight: "200px",
+          }}
+        >
           <div
-            className="grid rounded-[12px] overflow-hidden border border-border w-full relative"
-            style={{
-              gridTemplateColumns: "1fr 1px 1fr",
-              minHeight: "200px",
-            }}
+            className="flex flex-col gap-[10px] p-[18px]"
+            style={{ background: "#f5f5f4", color: "#18181b" }}
           >
-            <div
-              className="flex flex-col gap-[10px] p-[18px]"
-              style={{ background: "#f5f5f4", color: "#18181b" }}
+            <span
+              className="inline-flex w-7 h-7 items-center justify-center rounded-[8px] self-start"
+              style={{ background: "rgba(0,0,0,0.05)" }}
             >
-              <span
-                className="inline-flex w-7 h-7 items-center justify-center rounded-[8px] self-start"
-                style={{ background: "rgba(0,0,0,0.05)" }}
+              <svg
+                viewBox="0 0 24 24"
+                width={18}
+                height={18}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.6}
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <m.svg
-                  viewBox="0 0 24 24"
-                  width={18}
-                  height={18}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.6}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  initial={reduced ? false : { rotate: -180, opacity: 0 }}
-                  animate={
-                    inView
-                      ? { rotate: 0, opacity: 1 }
-                      : { rotate: -180, opacity: 0 }
-                  }
-                  transition={{
-                    type: "spring",
-                    stiffness: 180,
-                    damping: 22,
-                    delay: cardDelay + 0.2,
-                  }}
-                >
-                  <circle cx={12} cy={12} r={4} />
-                  <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4l1.4-1.4M17 7l1.4-1.4" />
-                </m.svg>
+                <circle cx={12} cy={12} r={4} />
+                <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4l1.4-1.4M17 7l1.4-1.4" />
+              </svg>
+            </span>
+            <div className="flex flex-col gap-2 mt-auto">
+              <span className="font-serif italic text-[34px] leading-none">
+                Aa
               </span>
-              <div className="flex flex-col gap-2 mt-auto">
-                <span className="font-serif italic text-[34px] leading-none">
-                  Aa
-                </span>
-                <m.span
-                  className="self-start px-[11px] py-[5px] rounded-full text-[11px] font-medium"
-                  style={{ background: "#18181b", color: "#f5f5f4" }}
-                  animate={
-                    isVisible && !reduced
-                      ? { scale: [1, 1.02, 1] }
-                      : { scale: 1 }
-                  }
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                >
-                  Continue
-                </m.span>
-                <span
-                  className="h-[5px] rounded-[3px] w-[90%]"
-                  style={{ background: "currentColor", opacity: 0.12 }}
-                />
-                <span
-                  className="h-[5px] rounded-[3px] w-[60%]"
-                  style={{ background: "currentColor", opacity: 0.12 }}
-                />
-              </div>
-            </div>
-
-            <div className="relative" style={{ background: "var(--border)" }}>
-              <m.div
-                className="absolute inset-0"
-                style={{ transformOrigin: "top", background: "var(--border)" }}
-                initial={reduced ? false : { scaleY: 0 }}
-                animate={inView ? { scaleY: 1 } : { scaleY: 0 }}
+              <m.span
+                className="self-start px-[11px] py-[5px] rounded-full text-[11px] font-medium"
+                style={{ background: "#18181b", color: "#f5f5f4" }}
+                animate={
+                  isVisible && !reduced ? { scale: [1, 1.02, 1] } : { scale: 1 }
+                }
                 transition={{
-                  duration: 0.6,
-                  delay: cardDelay + 0.15,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-              />
-              <AnimatePresence>
-                {cardHovered && !reduced && (
-                  <m.div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      background: `linear-gradient(180deg, transparent 0%, color-mix(in oklch, ${FX_VIOLET} 60%, transparent) 50%, transparent 100%)`,
-                      backgroundSize: "100% 60%",
-                    }}
-                    initial={{ backgroundPosition: "0% -60%" }}
-                    animate={{ backgroundPosition: "0% 160%" }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 1.2, ease: "easeInOut" }}
-                  />
-                )}
-              </AnimatePresence>
-              <div
-                className="absolute top-1/2 left-1/2 w-[22px] h-[22px] rounded-full border border-border"
-                style={{
-                  transform: "translate(-50%, -50%)",
-                  background:
-                    "linear-gradient(90deg, #f5f5f4 0 50%, #0f0f10 50% 100%)",
-                }}
-              />
-            </div>
-            <div
-              className="flex flex-col gap-[10px] p-[18px]"
-              style={{ background: "#0f0f10", color: "#f4f4f5" }}
-            >
-              <span
-                className="inline-flex w-7 h-7 items-center justify-center rounded-[8px] self-start"
-                style={{
-                  background:
-                    "color-mix(in oklch, var(--foreground) 6%, transparent)",
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
                 }}
               >
-                <m.svg
-                  viewBox="0 0 24 24"
-                  width={18}
-                  height={18}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.6}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  initial={reduced ? false : { rotate: 180, opacity: 0 }}
-                  animate={
-                    inView
-                      ? { rotate: 0, opacity: 1 }
-                      : { rotate: 180, opacity: 0 }
-                  }
-                  transition={{
-                    type: "spring",
-                    stiffness: 180,
-                    damping: 22,
-                    delay: cardDelay + 0.2,
-                  }}
-                >
-                  <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
-                </m.svg>
-              </span>
-              <div className="flex flex-col gap-2 mt-auto">
-                <span className="font-serif italic text-[34px] leading-none">
-                  Aa
-                </span>
-                <m.span
-                  className="self-start px-[11px] py-[5px] rounded-full text-[11px] font-medium"
-                  style={{ background: "#f4f4f5", color: "#0f0f10" }}
-                  animate={
-                    isVisible && !reduced
-                      ? { scale: [1, 1.02, 1] }
-                      : { scale: 1 }
-                  }
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 0,
-                  }}
-                >
-                  Continue
-                </m.span>
-                <span
-                  className="h-[5px] rounded-[3px] w-[90%]"
-                  style={{ background: "currentColor", opacity: 0.12 }}
-                />
-                <span
-                  className="h-[5px] rounded-[3px] w-[60%]"
-                  style={{ background: "currentColor", opacity: 0.12 }}
-                />
-              </div>
+                Continue
+              </m.span>
+              <span
+                className="h-[5px] rounded-[3px] w-[90%]"
+                style={{ background: "currentColor", opacity: 0.12 }}
+              />
+              <span
+                className="h-[5px] rounded-[3px] w-[60%]"
+                style={{ background: "currentColor", opacity: 0.12 }}
+              />
             </div>
           </div>
-        </CardContent>
+
+          <div className="relative" style={{ background: "var(--border)" }}>
+            <AnimatePresence>
+              {cardHovered && !reduced && (
+                <m.div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: `linear-gradient(180deg, transparent 0%, color-mix(in oklch, ${FX_VIOLET} 60%, transparent) 50%, transparent 100%)`,
+                    backgroundSize: "100% 60%",
+                  }}
+                  initial={{ backgroundPosition: "0% -60%" }}
+                  animate={{ backgroundPosition: "0% 160%" }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1.2, ease: "easeInOut" }}
+                />
+              )}
+            </AnimatePresence>
+            <div
+              className="absolute top-1/2 left-1/2 w-[22px] h-[22px] rounded-full border border-border"
+              style={{
+                transform: "translate(-50%, -50%)",
+                background:
+                  "linear-gradient(90deg, #f5f5f4 0 50%, #0f0f10 50% 100%)",
+              }}
+            />
+          </div>
+
+          <div
+            className="flex flex-col gap-[10px] p-[18px]"
+            style={{ background: "#0f0f10", color: "#f4f4f5" }}
+          >
+            <span
+              className="inline-flex w-7 h-7 items-center justify-center rounded-[8px] self-start"
+              style={{
+                background:
+                  "color-mix(in oklch, var(--foreground) 6%, transparent)",
+              }}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width={18}
+                height={18}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.6}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
+              </svg>
+            </span>
+            <div className="flex flex-col gap-2 mt-auto">
+              <span className="font-serif italic text-[34px] leading-none">
+                Aa
+              </span>
+              <m.span
+                className="self-start px-[11px] py-[5px] rounded-full text-[11px] font-medium"
+                style={{ background: "#f4f4f5", color: "#0f0f10" }}
+                animate={
+                  isVisible && !reduced ? { scale: [1, 1.02, 1] } : { scale: 1 }
+                }
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              >
+                Continue
+              </m.span>
+              <span
+                className="h-[5px] rounded-[3px] w-[90%]"
+                style={{ background: "currentColor", opacity: 0.12 }}
+              />
+              <span
+                className="h-[5px] rounded-[3px] w-[60%]"
+                style={{ background: "currentColor", opacity: 0.12 }}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
-      <CardContent delay={cardDelay + 0.26} inView={inView}>
-        <div className="mt-auto">
-          <h3 className="m-0 mb-[6px] text-[17px] font-medium tracking-[-0.015em] text-foreground">
-            Light &amp; dark, side by side
-          </h3>
-          <p className="m-0 text-[13.5px] leading-[1.55] text-muted-foreground max-w-[42ch]">
-            Edit both modes at once and confirm your system works in either — no
-            surprise contrast failures after the fact.
-          </p>
-        </div>
-      </CardContent>
+      <div className="mt-auto">
+        <h3 className="m-0 mb-[6px] text-[17px] font-medium tracking-[-0.015em] text-foreground">
+          Light &amp; dark, side by side
+        </h3>
+        <p className="m-0 text-[13.5px] leading-[1.55] text-muted-foreground max-w-[42ch]">
+          Edit both modes at once and confirm your system works in either — no
+          surprise contrast failures after the fact.
+        </p>
+      </div>
     </FCard>
   );
 }
@@ -843,7 +714,6 @@ const TYPE_ROWS = [
       letterSpacing: "-0.035em",
       lineHeight: 1,
     } as React.CSSProperties,
-    isH1: true,
   },
   {
     label: "H2 · 28 / 500",
@@ -873,64 +743,19 @@ const RADII = [
   { label: "pill", radius: "999px", br: 999 },
 ];
 
-function TypingText({
-  text,
-  inView,
-  delay = 0,
-}: {
-  text: string;
-  inView: boolean;
-  delay?: number;
-}) {
-  const reduced = useReducedMotion();
-  if (reduced) return <>{text}</>;
-  return (
-    <>
-      {text.split("").map((ch, i) => (
-        <m.span
-          key={i}
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{
-            type: "spring",
-            stiffness: 260,
-            damping: 22,
-            delay: delay + i * 0.04,
-          }}
-          style={{ display: "inline-block", whiteSpace: "pre" }}
-        >
-          {ch}
-        </m.span>
-      ))}
-    </>
-  );
-}
-
 function TypographyCard() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10%" });
-  const reduced = useReducedMotion();
   const layoutId = useId();
-  const cardDelay = CARD_DIAGONAL[4] * 0.08;
-  const [activeRadius, setActiveRadius] = useState(1); // "soft"
+  const [activeRadius, setActiveRadius] = useState(1);
 
   return (
-    <FCard cardIndex={4} wide>
-      <div ref={ref} className="flex-1 mb-[22px] flex flex-col">
+    <FCard wide>
+      <div className="flex-1 mb-[22px] flex flex-col">
         <div className="flex flex-col gap-3 pb-4 border-b border-border">
-          {TYPE_ROWS.map(({ label, sample, style, isH1 }, ri) => (
-            <m.div
+          {TYPE_ROWS.map(({ label, sample, style }) => (
+            <div
               key={label}
               className="grid gap-3 items-baseline"
               style={{ gridTemplateColumns: "72px 1fr" }}
-              initial={reduced ? false : { opacity: 0, x: -10 }}
-              animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
-              transition={{
-                type: "spring",
-                stiffness: 220,
-                damping: 26,
-                delay: cardDelay + ri * 0.06,
-              }}
             >
               <span
                 className="font-mono text-[10px] tracking-[0.02em]"
@@ -941,18 +766,8 @@ function TypographyCard() {
               >
                 {label}
               </span>
-              <span style={style}>
-                {isH1 ? (
-                  <TypingText
-                    text={sample}
-                    inView={inView}
-                    delay={cardDelay + 0.1}
-                  />
-                ) : (
-                  sample
-                )}
-              </span>
-            </m.div>
+              <span style={style}>{sample}</span>
+            </div>
           ))}
         </div>
 
@@ -974,18 +789,7 @@ function TypographyCard() {
                 className="inline-flex items-center gap-[6px] px-[10px] py-[5px] rounded-full text-[11px] cursor-pointer relative select-none"
                 style={{ border: "1px solid transparent" }}
                 onClick={() => setActiveRadius(ri)}
-                initial={reduced ? false : { opacity: 0, scale: 0.9 }}
-                animate={
-                  inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }
-                }
-                transition={{
-                  type: "spring",
-                  stiffness: 260,
-                  damping: 22,
-                  delay: cardDelay + 0.22 + ri * 0.04,
-                }}
               >
-                {/* layout-animated selection pill */}
                 {isActive && (
                   <m.span
                     layoutId={`${layoutId}-radius-bg`}
@@ -1035,17 +839,15 @@ function TypographyCard() {
         </div>
       </div>
 
-      <CardContent delay={cardDelay + 0.36} inView={inView}>
-        <div className="mt-auto">
-          <h3 className="m-0 mb-[6px] text-[17px] font-medium tracking-[-0.015em] text-foreground">
-            Typography &amp; radius control
-          </h3>
-          <p className="m-0 text-[13.5px] leading-[1.55] text-muted-foreground max-w-[42ch]">
-            Dial in fonts, weights and corner radii to give your system its own
-            voice — not someone else&apos;s.
-          </p>
-        </div>
-      </CardContent>
+      <div className="mt-auto">
+        <h3 className="m-0 mb-[6px] text-[17px] font-medium tracking-[-0.015em] text-foreground">
+          Typography &amp; radius control
+        </h3>
+        <p className="m-0 text-[13.5px] leading-[1.55] text-muted-foreground max-w-[42ch]">
+          Dial in fonts, weights and corner radii to give your system its own
+          voice — not someone else&apos;s.
+        </p>
+      </div>
     </FCard>
   );
 }
@@ -1155,10 +957,7 @@ function LineParticle({
 function IOCard() {
   const ref = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10%" });
   const isVisible = useInView(ref, { once: false, margin: "0px" });
-  const reduced = useReducedMotion();
-  const cardDelay = CARD_DIAGONAL[5] * 0.08;
 
   const [hoveredChip, setHoveredChip] = useState<string | null>(null);
   const [particleTick, setParticleTick] = useState(0);
@@ -1168,6 +967,7 @@ function IOCard() {
   const [vectors, setVectors] = useState<
     Record<string, { x1: number; y1: number; x2: number; y2: number }>
   >({});
+
   useEffect(() => {
     if (!containerRef.current || !badgeRef.current) return;
     const cRect = containerRef.current.getBoundingClientRect();
@@ -1182,224 +982,184 @@ function IOCard() {
       newVectors[label] = { x1: cx, y1: cy, x2: bx, y2: by };
     });
     setVectors(newVectors);
-  }, [inView]);
+  }, []);
 
   useEffect(() => {
     if (hoveredChip) setParticleTick((t) => t + 1);
   }, [hoveredChip]);
 
   return (
-    <FCard cardIndex={5} wide>
+    <FCard wide>
       <div ref={ref} className="flex-1 mb-[22px]">
-        <CardContent delay={cardDelay + 0.1} inView={inView}>
-          <div
-            ref={containerRef}
-            className="grid items-center gap-1 h-full relative"
-            style={{
-              gridTemplateColumns: "auto 1fr auto 1fr auto",
-              minHeight: "180px",
-            }}
-          >
-            {/* Left chips */}
-            <div className="flex flex-col gap-[6px]">
-              {IO_CHIPS_LEFT.map((c) => (
-                <span
-                  key={c.label}
-                  ref={(el) => {
-                    if (el) chipRefs.current.set(c.label, el);
-                  }}
-                  className="inline-flex items-center gap-[6px] px-[9px] py-[6px] border border-border rounded-[7px] text-[10.5px] text-foreground whitespace-nowrap leading-none cursor-pointer"
-                  style={{
-                    background:
-                      "color-mix(in oklch, var(--foreground) 3%, transparent)",
-                  }}
-                  onMouseEnter={() => setHoveredChip(c.label)}
-                  onMouseLeave={() => setHoveredChip(null)}
-                >
-                  <span className="text-muted-foreground">{c.icon}</span>
-                  {c.label}
-                </span>
-              ))}
-            </div>
-
-            {/* Left SVG connector lines */}
-            <div
-              className="h-full text-muted-foreground"
-              style={{ minHeight: "80px" }}
-            >
-              <svg
-                viewBox="0 0 80 100"
-                preserveAspectRatio="none"
-                style={{ width: "100%", height: "100%" }}
-              >
-                <m.path
-                  d="M0 22 L 80 50"
-                  stroke="currentColor"
-                  strokeWidth={1}
-                  fill="none"
-                  opacity={0.5}
-                  initial={reduced ? false : { pathLength: 0 }}
-                  animate={inView ? { pathLength: 1 } : { pathLength: 0 }}
-                  transition={{
-                    duration: 0.8,
-                    delay: cardDelay + 0.15,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                />
-                <m.path
-                  d="M0 78 L 80 50"
-                  stroke="currentColor"
-                  strokeWidth={1}
-                  fill="none"
-                  opacity={0.5}
-                  initial={reduced ? false : { pathLength: 0 }}
-                  animate={inView ? { pathLength: 1 } : { pathLength: 0 }}
-                  transition={{
-                    duration: 0.8,
-                    delay: cardDelay + 0.15,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                />
-              </svg>
-            </div>
-
-            {/* Center badge */}
-            <m.div
-              ref={badgeRef}
-              className="w-[54px] h-[54px] rounded-full flex flex-col items-center justify-center gap-[3px]"
-              style={{
-                background: `color-mix(in oklch, ${FX_VIOLET} 18%, transparent)`,
-                border: `1px solid color-mix(in oklch, ${FX_VIOLET} 50%, transparent)`,
-              }}
-              initial={reduced ? false : { scale: 0 }}
-              animate={
-                inView
-                  ? {
-                      scale: 1,
-                      boxShadow: isVisible
-                        ? [
-                            `0 0 0 6px color-mix(in oklch, ${FX_VIOLET} 6%, transparent), 0 8px 24px -8px color-mix(in oklch, ${FX_VIOLET} 40%, transparent)`,
-                            `0 0 0 10px color-mix(in oklch, ${FX_VIOLET} 3%, transparent), 0 8px 28px -6px color-mix(in oklch, ${FX_VIOLET} 50%, transparent)`,
-                            `0 0 0 6px color-mix(in oklch, ${FX_VIOLET} 6%, transparent), 0 8px 24px -8px color-mix(in oklch, ${FX_VIOLET} 40%, transparent)`,
-                          ]
-                        : `0 0 0 6px color-mix(in oklch, ${FX_VIOLET} 6%, transparent), 0 8px 24px -8px color-mix(in oklch, ${FX_VIOLET} 40%, transparent)`,
-                    }
-                  : { scale: 0 }
-              }
-              transition={{
-                scale: {
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 18,
-                  delay: cardDelay + 0.95,
-                },
-                boxShadow: {
-                  duration: 2.5,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                },
-              }}
-            >
+        <div
+          ref={containerRef}
+          className="grid items-center gap-1 h-full relative"
+          style={{
+            gridTemplateColumns: "auto 1fr auto 1fr auto",
+            minHeight: "180px",
+          }}
+        >
+          {/* Left chips */}
+          <div className="flex flex-col gap-[6px]">
+            {IO_CHIPS_LEFT.map((c) => (
               <span
-                className="w-4 h-4 rounded-[5px]"
+                key={c.label}
+                ref={(el) => {
+                  if (el) chipRefs.current.set(c.label, el);
+                }}
+                className="inline-flex items-center gap-[6px] px-[9px] py-[6px] border border-border rounded-[7px] text-[10.5px] text-foreground whitespace-nowrap leading-none cursor-pointer"
                 style={{
                   background:
-                    "conic-gradient(from 200deg at 50% 50%, var(--primary), var(--accent), var(--secondary), var(--primary))",
-                  boxShadow:
-                    "inset 0 0 0 1px color-mix(in oklch, var(--foreground) 22%, transparent)",
+                    "color-mix(in oklch, var(--foreground) 3%, transparent)",
                 }}
-              />
-              <span className="font-mono text-[8.5px] text-foreground tracking-[0.04em]">
-                Stylofy
-              </span>
-            </m.div>
-
-            {/* Right SVG connector lines */}
-            <div
-              className="h-full text-muted-foreground"
-              style={{ minHeight: "80px" }}
-            >
-              <svg
-                viewBox="0 0 80 100"
-                preserveAspectRatio="none"
-                style={{ width: "100%", height: "100%" }}
+                onMouseEnter={() => setHoveredChip(c.label)}
+                onMouseLeave={() => setHoveredChip(null)}
               >
-                <m.path
-                  d="M0 50 L 80 22"
-                  stroke="currentColor"
-                  strokeWidth={1}
-                  fill="none"
-                  opacity={0.5}
-                  initial={reduced ? false : { pathLength: 0 }}
-                  animate={inView ? { pathLength: 1 } : { pathLength: 0 }}
-                  transition={{
-                    duration: 0.8,
-                    delay: cardDelay + 0.15,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                />
-                <m.path
-                  d="M0 50 L 80 78"
-                  stroke="currentColor"
-                  strokeWidth={1}
-                  fill="none"
-                  opacity={0.5}
-                  initial={reduced ? false : { pathLength: 0 }}
-                  animate={inView ? { pathLength: 1 } : { pathLength: 0 }}
-                  transition={{
-                    duration: 0.8,
-                    delay: cardDelay + 0.15,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                />
-              </svg>
-            </div>
-
-            {/* Right chips */}
-            <div className="flex flex-col gap-[6px]">
-              {IO_CHIPS_RIGHT.map((c) => (
-                <span
-                  key={c.label}
-                  ref={(el) => {
-                    if (el) chipRefs.current.set(c.label, el);
-                  }}
-                  className="inline-flex items-center gap-[6px] px-[9px] py-[6px] border border-border rounded-[7px] text-[10.5px] text-foreground whitespace-nowrap leading-none cursor-pointer"
-                  style={{
-                    background:
-                      "color-mix(in oklch, var(--foreground) 3%, transparent)",
-                  }}
-                  onMouseEnter={() => setHoveredChip(c.label)}
-                  onMouseLeave={() => setHoveredChip(null)}
-                >
-                  <span className="text-muted-foreground">{c.icon}</span>
-                  {c.label}
-                </span>
-              ))}
-            </div>
-
-            {/* Particles */}
-            {hoveredChip && vectors[hoveredChip] && (
-              <LineParticle
-                key={`${hoveredChip}-${particleTick}`}
-                {...vectors[hoveredChip]}
-                trigger={true}
-              />
-            )}
+                <span className="text-muted-foreground">{c.icon}</span>
+                {c.label}
+              </span>
+            ))}
           </div>
-        </CardContent>
+
+          {/* Left SVG connector lines */}
+          <div
+            className="h-full text-muted-foreground"
+            style={{ minHeight: "80px" }}
+          >
+            <svg
+              viewBox="0 0 80 100"
+              preserveAspectRatio="none"
+              style={{ width: "100%", height: "100%" }}
+            >
+              <path
+                d="M0 22 L 80 50"
+                stroke="currentColor"
+                strokeWidth={1}
+                fill="none"
+                opacity={0.5}
+              />
+              <path
+                d="M0 78 L 80 50"
+                stroke="currentColor"
+                strokeWidth={1}
+                fill="none"
+                opacity={0.5}
+              />
+            </svg>
+          </div>
+
+          {/* Center badge */}
+          <m.div
+            ref={badgeRef}
+            className="w-[54px] h-[54px] rounded-full flex flex-col items-center justify-center gap-[3px]"
+            style={{
+              background: `color-mix(in oklch, ${FX_VIOLET} 18%, transparent)`,
+              border: `1px solid color-mix(in oklch, ${FX_VIOLET} 50%, transparent)`,
+            }}
+            animate={
+              isVisible
+                ? {
+                    boxShadow: [
+                      `0 0 0 6px color-mix(in oklch, ${FX_VIOLET} 6%, transparent), 0 8px 24px -8px color-mix(in oklch, ${FX_VIOLET} 40%, transparent)`,
+                      `0 0 0 10px color-mix(in oklch, ${FX_VIOLET} 3%, transparent), 0 8px 28px -6px color-mix(in oklch, ${FX_VIOLET} 50%, transparent)`,
+                      `0 0 0 6px color-mix(in oklch, ${FX_VIOLET} 6%, transparent), 0 8px 24px -8px color-mix(in oklch, ${FX_VIOLET} 40%, transparent)`,
+                    ],
+                  }
+                : {
+                    boxShadow: `0 0 0 6px color-mix(in oklch, ${FX_VIOLET} 6%, transparent), 0 8px 24px -8px color-mix(in oklch, ${FX_VIOLET} 40%, transparent)`,
+                  }
+            }
+            transition={{
+              boxShadow: {
+                duration: 2.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              },
+            }}
+          >
+            <span
+              className="w-4 h-4 rounded-[5px]"
+              style={{
+                background:
+                  "conic-gradient(from 200deg at 50% 50%, var(--primary), var(--accent), var(--secondary), var(--primary))",
+                boxShadow:
+                  "inset 0 0 0 1px color-mix(in oklch, var(--foreground) 22%, transparent)",
+              }}
+            />
+            <span className="font-mono text-[8.5px] text-foreground tracking-[0.04em]">
+              Stylofy
+            </span>
+          </m.div>
+
+          {/* Right SVG connector lines */}
+          <div
+            className="h-full text-muted-foreground"
+            style={{ minHeight: "80px" }}
+          >
+            <svg
+              viewBox="0 0 80 100"
+              preserveAspectRatio="none"
+              style={{ width: "100%", height: "100%" }}
+            >
+              <path
+                d="M0 50 L 80 22"
+                stroke="currentColor"
+                strokeWidth={1}
+                fill="none"
+                opacity={0.5}
+              />
+              <path
+                d="M0 50 L 80 78"
+                stroke="currentColor"
+                strokeWidth={1}
+                fill="none"
+                opacity={0.5}
+              />
+            </svg>
+          </div>
+
+          {/* Right chips */}
+          <div className="flex flex-col gap-[6px]">
+            {IO_CHIPS_RIGHT.map((c) => (
+              <span
+                key={c.label}
+                ref={(el) => {
+                  if (el) chipRefs.current.set(c.label, el);
+                }}
+                className="inline-flex items-center gap-[6px] px-[9px] py-[6px] border border-border rounded-[7px] text-[10.5px] text-foreground whitespace-nowrap leading-none cursor-pointer"
+                style={{
+                  background:
+                    "color-mix(in oklch, var(--foreground) 3%, transparent)",
+                }}
+                onMouseEnter={() => setHoveredChip(c.label)}
+                onMouseLeave={() => setHoveredChip(null)}
+              >
+                <span className="text-muted-foreground">{c.icon}</span>
+                {c.label}
+              </span>
+            ))}
+          </div>
+
+          {/* Particles */}
+          {hoveredChip && vectors[hoveredChip] && (
+            <LineParticle
+              key={`${hoveredChip}-${particleTick}`}
+              {...vectors[hoveredChip]}
+              trigger={true}
+            />
+          )}
+        </div>
       </div>
 
-      <CardContent delay={cardDelay + 0.36} inView={inView}>
-        <div className="mt-auto">
-          <h3 className="m-0 mb-[6px] text-[17px] font-medium tracking-[-0.015em] text-foreground">
-            Import &amp; export themes
-          </h3>
-          <p className="m-0 text-[13.5px] leading-[1.55] text-muted-foreground max-w-[42ch]">
-            Bring in an existing token set or export yours as ready-to-paste
-            CSS, Tailwind or JSON — move themes between projects effortlessly.
-          </p>
-        </div>
-      </CardContent>
+      <div className="mt-auto">
+        <h3 className="m-0 mb-[6px] text-[17px] font-medium tracking-[-0.015em] text-foreground">
+          Import &amp; export themes
+        </h3>
+        <p className="m-0 text-[13.5px] leading-[1.55] text-muted-foreground max-w-[42ch]">
+          Bring in an existing token set or export yours as ready-to-paste CSS,
+          Tailwind or JSON — move themes between projects effortlessly.
+        </p>
+      </div>
     </FCard>
   );
 }

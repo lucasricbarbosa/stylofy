@@ -4,7 +4,7 @@ export function CTASection() {
   return (
     <section className="relative z-[2] mx-auto mb-28 mt-16 max-w-[1200px] px-10 max-md:mb-16 max-md:px-6">
       <div
-        className="relative overflow-hidden rounded-[22px] border border-border px-10 py-20 text-center max-md:px-6 max-md:py-14"
+        className="relative overflow-hidden rounded-md border border-border px-10 py-20 text-center max-md:px-6 max-md:py-14"
         style={{
           background:
             "radial-gradient(ellipse at 50% -10%, color-mix(in oklch, var(--primary) 18%, transparent), transparent 60%), var(--background)",

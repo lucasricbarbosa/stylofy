@@ -52,7 +52,7 @@ export default function LoginPage() {
                   id="email"
                   type="email"
                   placeholder="m@example.com"
-                  className="w-full px-3 py-2 border border-accent rounded-md text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  className="w-full px-3 py-2 border border-border rounded-md text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                 />
               </div>
 
@@ -75,7 +75,7 @@ export default function LoginPage() {
                 <input
                   id="password"
                   type="password"
-                  className="w-full px-3 py-2 border border-accent rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                 />
               </div>
 
@@ -102,7 +102,7 @@ export default function LoginPage() {
               {/* GitHub Button */}
               <button
                 type="button"
-                className="w-full flex items-center justify-center gap-2 border border-accent py-2 px-4 rounded-md text-sm font-medium hover:bg-accent/75 bg-background transition-colors"
+                className="w-full flex items-center justify-center gap-2 border border-border py-2 px-4 rounded-md text-sm font-medium hover:bg-accent/75 bg-background transition-colors"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
