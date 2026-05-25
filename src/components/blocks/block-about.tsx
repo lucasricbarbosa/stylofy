@@ -125,7 +125,7 @@ const BlockAbout = ({
   return (
     <section
       className={cn(
-        "flex w-full items-center relative justify-center bg-background px-5 py-24",
+        "flex w-full items-center relative justify-center bg-background px-5 py-40 md:py-24",
         className,
       )}
     >

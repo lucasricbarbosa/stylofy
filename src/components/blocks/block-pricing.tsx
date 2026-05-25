@@ -18,7 +18,7 @@ export function BlockPricing() {
   const [isYearly, setIsYearly] = useState(true);
 
   return (
-    <div className="w-full min-h-screen bg-background py-24 px-2 relative">
+    <div className="w-full min-h-screen bg-background py-40 md:py-24 px-2 relative">
       <ZentoUiLink />
 
       <div className="max-w-4xl mx-auto text-center space-y-12">

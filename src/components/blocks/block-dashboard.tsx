@@ -212,7 +212,7 @@ export function BlockDashboard() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="flex items-center gap-2 border-b border-border px-6 py-4">
+        <header className="flex items-center gap-2 border-b border-border px-0 py-4">
           <Button variant="ghost" size="icon" className="h-7 w-7">
             <PanelLeftIcon className="h-4 w-4" />
           </Button>
@@ -220,7 +220,7 @@ export function BlockDashboard() {
         </header>
 
         {/* Content */}
-        <div className="flex-1 overflow-auto p-6 space-y-6">
+        <div className="flex-1 overflow-auto py-6 p-0 space-y-6">
           {/* KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <KPICard

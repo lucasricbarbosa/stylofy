@@ -332,3 +332,18 @@ html.theme-transitioning *::after {
     border-radius: 8px;
   }
 }
+
+@layer utilities {
+  @keyframes scrolling-logos {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(-33.333%);
+    }
+  }
+
+  .animate-scrolling-logos {
+    animation: scrolling-logos var(--duration, 30s) linear infinite;
+  }
+}
