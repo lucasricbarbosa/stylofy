@@ -9,13 +9,11 @@ import {
   NavigationMenuTrigger,
 } from "../ui/navigation-menu";
 
-const NAV_LINKS = [
-  { label: "Playground", href: "/template/components-showcase" },
-];
+const NAV_LINKS = [{ label: "Playground", href: "/playground" }];
 
 export function HeaderNav() {
   return (
-    <nav className="hidden items-center gap-1 md:flex">
+    <nav className="hidden w-full items-center justify-center gap-1 md:flex">
       {NAV_LINKS.map(({ label, href }) => (
         <Link
           key={label}
@@ -25,7 +23,6 @@ export function HeaderNav() {
           {label}
         </Link>
       ))}
-
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>

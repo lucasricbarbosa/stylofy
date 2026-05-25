@@ -37,7 +37,7 @@ export function Hero() {
       {/* Subtitle */}
       <p className="mb-9 max-w-[52ch] text-[17px] leading-[1.55] text-muted-foreground max-md:text-base">
         Stylofy is a live palette playground. Tweak tokens at the bottom of this
-        page — every surface, button, and shadow recolors in real time. Ship the
+        page, every surface, button, and shadow recolors in real time. Ship the
         CSS when it feels right.
       </p>
 

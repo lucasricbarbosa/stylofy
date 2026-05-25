@@ -17,6 +17,7 @@ import { templates } from "@/utils/templates";
 import { ChevronDown, ChevronRight, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ShareThemeButton } from "../share-theme-button";
 import { ThemeToggle } from "../theme/theme-toggle";
 import { HeaderLogo } from "./header-logo";
 import { HeaderNav } from "./header-nav";
@@ -24,9 +25,15 @@ import { HeaderNav } from "./header-nav";
 export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b bg-background">
-      <div className="mx-auto grid max-w-[1200px] grid-cols-[1fr_auto_1fr] items-center px-10 py-[18px] max-md:flex max-md:justify-between max-md:px-6 max-md:py-4">
-        <HeaderLogo />
-        <HeaderNav />
+      <div className="mx-auto  max-w-[1200px] items-center px-10 py-[18px] max-md:flex max-md:justify-between max-md:px-6 max-md:py-4">
+        <div className="w-full grid grid-cols-3 items-center">
+          <HeaderLogo />
+
+          <HeaderNav />
+          <div className="md:flex hidden items-center justify-end">
+            <ShareThemeButton />
+          </div>
+        </div>
         {/* Right spacer — keeps nav centered on desktop */}
         <div className="hidden md:block" />
         {/* Mobile hamburger */}
@@ -86,7 +93,7 @@ function MobileMenu() {
           {/* Playground */}
           <MenuItem
             label="Playground"
-            href="/template/components-showcase"
+            href="/playground"
             index="01"
             isActive={isOnHome}
           />
@@ -170,6 +177,9 @@ function MobileMenu() {
             </CollapsibleContent>
           </Collapsible>
         </nav>
+        <div className="px-9 pb-10">
+          <ShareThemeButton className="w-full" />
+        </div>
       </SheetContent>
     </Sheet>
   );

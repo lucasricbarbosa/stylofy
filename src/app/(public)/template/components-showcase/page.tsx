@@ -45,7 +45,7 @@ import { TooltipProvider } from "../../../../components/ui/tooltip";
 
 export default function Page() {
   return (
-    <div className="min-h-screen bg-secondary/20">
+    <div className="min-h-screen bg-background">
       <TooltipProvider>
         <div className="mx-auto max-w-[2000px] p-4 md:p-6 lg:p-8">
           {/* Header opcional */}
