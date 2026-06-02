@@ -210,7 +210,7 @@ export function BlockDashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden p-4">
         {/* Header */}
         <header className="flex items-center gap-2 border-b border-border px-0 py-4">
           <Button variant="ghost" size="icon" className="h-7 w-7">
