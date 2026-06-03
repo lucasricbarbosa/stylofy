@@ -1,8 +1,9 @@
+import { ThemeUrlLoader } from "@/components/theme-url-loader";
 import { ThemeColorsProvider } from "@/components/theme/theme-context";
 import { ThemeProvider } from "@/components/theme/theme-provider";
-import { ThemeUrlLoader } from "@/components/theme-url-loader";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemingStoreProvider } from "@/features/theming/store";
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Instrument_Serif, Inter } from "next/font/google";
 import "./globals.css";
@@ -37,6 +38,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${instrumentSerif.variable} font-sans antialiased`}
       >
+        <Analytics />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
